@@ -1,0 +1,150 @@
+
+
+
+  public static LatLng[] bezierCurve3Wp(int steps, LatLng p1, LatLng p2, LatLng p3) {
+
+        double[] lat = bezierCurve3(steps, p1.latitude, p2.latitude, p3.latitude);
+        double[] lng = bezierCurve3(steps, p1.longitude, p2.longitude, p3.longitude);
+        LatLng[] retVl = new LatLng[steps];
+        for (int i = 0; i < steps; i++) {
+            retVl[i] = new LatLng(lat[i], lng[i]);
+ 		}
+        return retVl;
+    }
+	
+	
+	
+	
+    public static double[] bezierCurve3(int steps, Double p1, Double p2, Double p3) {
+
+        double[] retVl = new double[steps];
+        for (int i = 0; i < steps; i++) {
+            double t = (double) i / ((double) steps - 1.0);
+            double q = 1.0 - t;
+            retVl[i] = q * q * p1 + 2 * q * t * p2 + t * t * p3;
+        }
+        return retVl;
+    }
+
+
+	
+	   private static Double[] bezierCurve2(int steps, Double p1, Double p2) {
+
+        Double[] retVl = new Double[steps];
+        for (int i = 0; i < steps; i++) {
+            double t = (double) i / ((double) steps - 1.0);
+            double q = 1.0 - t;
+            retVl[i] = q * p1 + t * p2;
+        }
+        return retVl;
+    }
+
+	
+	
+	
+	
+
+
+    public static double positionToAzimuth(LatLng from, LatLng to) {
+        // http://williams.best.vwh.net/avform.htm#Crs
+        double fromLat = toRadians(from.latitude);
+        double fromLng = toRadians(from.longitude);
+        double toLat = toRadians(to.latitude);
+
+        double toLng = toRadians(to.longitude);
+        double dLng = toLng - fromLng;
+        double heading = atan2(
+                sin(dLng) * cos(toLat),
+                cos(fromLat) * sin(toLat) - sin(fromLat) * cos(toLat) * cos(dLng));
+        return wrap(toDegrees(heading), -180, 180);
+    }
+
+    static double wrap(double n, double min, double max) {
+        return (n >= min && n < max) ? n : (mod(n - min, max - min) + min);
+    }
+
+    static double mod(double x, double m) {
+        return ((x % m) + m) % m;
+    }
+    // endregion computeHeading
+
+
+
+	   //region AzimuthToPosition
+
+    public static LatLng azimuthToPosition(double angle, LatLng center, float distances) {
+        double distanceRadians = distances / EARTH_RADIUS; // meters
+        double bearingRadians = toRadians(angle);
+        double fromLatRadians = toRadians(center.latitude);
+        double fromLonRadians = toRadians(center.longitude);
+        double toLatRadians = Math.asin(Math.sin(fromLatRadians) * Math.cos(distanceRadians) + Math.cos(fromLatRadians) * Math.sin(distanceRadians) * Math.cos(bearingRadians));
+        double toLonRadians = fromLonRadians + Math.atan2(Math.sin(bearingRadians) * Math.sin(distanceRadians) * Math.cos(fromLatRadians), Math.cos(distanceRadians) - Math.sin(fromLatRadians) * Math.sin(toLatRadians));
+        // adjust toLonRadians to be in the range -180 to +180...
+        //toLonRadians = Math.IEEEremainder((toLonRadians + 3 * PI), ((2 * PI)) - PI);
+        LatLng result = new LatLng(toDegrees(toLatRadians), toDegrees(toLonRadians));
+        return result;
+    }
+
+    //endregion AzimuthToPosition
+
+	
+	
+	
+    public static Double[] timeline(double stepSec, LatLng[] path, double[] speed) {
+
+
+        if (path.length != speed.length || path.length == 0) {
+            return new Double[0];
+        }
+        ArrayList<Double> timeLine = new ArrayList<Double>();
+        double timeAcum = 1;
+        double timeStep = stepSec;  //sec
+
+
+        for (int i = 0; i < path.length - 1; i++) {
+
+            double sp = (speed[i] + speed[i + 1]) / 2.0;
+            if (sp > 0) {
+                double dis = Maths.computeDistanceBetween(path[i], path[i + 1]);
+                double per = dis / sp;
+                //  Toast.makeText( mapAct.getApplicationContext(), Integer.toString(i) +" "+Double.toString(dis) +"/"+Double.toString(per), Toast.LENGTH_SHORT).show();
+                double tSteps = per / timeStep;
+                if (timeAcum + tSteps < 1) {
+                    timeAcum += tSteps;
+                } else {
+
+                    double rc = (1 - timeAcum);
+                    timeLine.add((i + rc / tSteps));//    <<<<<<<<<<<<<<<
+
+                    per -= rc * timeStep;
+                    double steps = per / timeStep;
+                    int intPart = (int) steps;
+                    double fracPart = per - intPart * timeStep;
+                    for (int j = 1; j <= intPart; j++) {
+                        timeLine.add((i + (rc + j) / tSteps)); //    <<<<<<<<<<<<<<<
+                    }
+                    timeAcum = fracPart / timeStep;
+                }
+            }
+        }
+        Double[] timelineArr = new Double[timeLine.size()];
+        timeLine.toArray(timelineArr);
+        return timelineArr;
+
+
+    }
+
+
+	
+	
+	
+	
+	
+	   public static Double toRadians(Double deg) {
+        return PI * deg / 180.0;
+    }
+
+
+    public static Double toDegrees(Double rad) {
+        return rad / PI * 180.0;
+    }
