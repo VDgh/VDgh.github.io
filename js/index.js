@@ -1,5 +1,4 @@
 
-let map
 
 let poly;
 let insrPoly;
@@ -84,7 +83,6 @@ function initMap() {
 
     polyM();
 }
-
 
 function polyM() {
 
@@ -287,26 +285,22 @@ function redraw3D() {
 }
 
 function slowDown(evn) {
-   alert("mousedown");
+    e=evn;
 	del = setTimeout(slowClick, 500);
- alert("setTimeout");
-
-	
-	reliefElevation = -1000;
+    reliefElevation = -1000;
     elevator.getElevationForLocations({
         locations: [evn.latLng],
     }, function (results, status) {
         reliefElevation = results[0].elevation;
+        if (waypoints.length > 0 && waypoints[waypoints.length - 1].position.lat() == evn.latLng.lat()) {
+            waypoints[waypoints.length - 1].elevation = Math.round(reliefElevation);
+        }
+
     });
 }
 
 function slowUp(evn) {
-    
-	   alert("mouseup");
-
-	
-	redraw3D();
-
+    redraw3D();
     clearTimeout(del);
     e = null;
 }
@@ -318,15 +312,13 @@ function slowClick(evn) {
 }
 
 function addLatLng(evn) {
-
     if (radioWp.checked) {
         tw = new Waypoint(evn.latLng, waypoints.length);
         tw.elevation = Math.round(reliefElevation);
         waypoints.push(tw);
-        displayChange(waypoints.length)
+        displayChange(waypoints.length);
         redrawPath();
     } else {
-
         po = new Poi(evn.latLng, pois.length);
         pois.push(po);
         displayChange(pois.length);
