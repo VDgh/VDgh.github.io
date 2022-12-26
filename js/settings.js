@@ -617,37 +617,35 @@ async function saveFl(type) {
     await fileStream.close();
 
 */
-			alert("predi");
+			
 			var ua = window.navigator.userAgent;
 			if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
-                var e = new Blob([blStr], {
-                    type: txType
-                });
+                var e = new Blob([blStr], {type: txType});
                 navigator.msSaveBlob(e, flNm)
             } else {
- 			  alert("ne e MSIE");
-
-			  var r = navigator.userAgent.indexOf("Chrome") > -1,
+ 			   var r = navigator.userAgent.indexOf("Chrome") > -1,
                 o = navigator.userAgent.indexOf("Safari") > -1;
 
-
-                  alert((r && o && (o = !1), o));
-
 				if (r && o && (o = !1), o)
-                    $.ajax({
+   
+					var blob = new Blob([blStr], {type: txType});
+
+				
+					$.ajax({
                         type: "POST",
                         url: "/geturl",
                         data: {
                             t: "c",
-                            buf: blStr
+                            buf: blob
                         },
-                        dataType: "json"
+                        //dataType: "json"
                     }).success(function (g) {
-                        window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(flNm))
+                        alert("mina");
+						
+						window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
                     }).fail(function () {});
                 else {
-                   alert("else");
-				   var a = $("<a>");
+                    var a = $("<a>");
                     if (a.get(0).download !== void 0) {
                         var e = new Blob([blStr], {
                             type: txType
