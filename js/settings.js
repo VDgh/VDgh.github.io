@@ -630,6 +630,9 @@ async function saveFl(type) {
 			  var r = navigator.userAgent.indexOf("Chrome") > -1,
                 o = navigator.userAgent.indexOf("Safari") > -1;
 
+
+                  alert((r && o && (o = !1), o));
+
 				if (r && o && (o = !1), o)
                     $.ajax({
                         type: "POST",
@@ -640,7 +643,7 @@ async function saveFl(type) {
                         },
                         dataType: "json"
                     }).success(function (g) {
-                        window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
+                        window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(flNm))
                     }).fail(function () {});
                 else {
                    alert("else");
