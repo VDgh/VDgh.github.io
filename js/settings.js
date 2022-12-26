@@ -617,7 +617,7 @@ async function saveFl(type) {
     await fileStream.close();
 
 */
-			
+			alert("predi");
 			var ua = window.navigator.userAgent;
 			if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
                 var e = new Blob([blStr], {
@@ -625,7 +625,9 @@ async function saveFl(type) {
                 });
                 navigator.msSaveBlob(e, flNm)
             } else {
- 			   var r = navigator.userAgent.indexOf("Chrome") > -1,
+ 			  alert("ne e MSIE");
+
+			  var r = navigator.userAgent.indexOf("Chrome") > -1,
                 o = navigator.userAgent.indexOf("Safari") > -1;
 
 				if (r && o && (o = !1), o)
@@ -641,7 +643,8 @@ async function saveFl(type) {
                         window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
                     }).fail(function () {});
                 else {
-                    var a = $("<a>");
+                   alert("else");
+				   var a = $("<a>");
                     if (a.get(0).download !== void 0) {
                         var e = new Blob([blStr], {
                             type: txType
