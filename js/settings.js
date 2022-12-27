@@ -513,9 +513,9 @@ function getNewFileHandle() {
 
 async function saveFl(type) {
 
-    var flNm = "wp.xml";
-    var txType = "text/xml;charset=utf-8;";
-    var blStr = "aaa";
+    var flNm ="wp.xml";
+	var txType = "text/xml;charset=utf-8;";
+	var blStr = "aaa";
     if (type == "xml") {
         /*const xmlStr = (
         `<?xml version="1.0" encoding="UTF-8"?>
@@ -549,9 +549,9 @@ async function saveFl(type) {
 
         blStr = xmlStr + docStr;
     } else if (type.includes("wp csv")) {
-        flNm = "wp.csv";
-        txType = "text/csv;charset=utf-8;";
-        var tb = ",";
+        flNm ="wp.csv";
+		txType = "text/csv;charset=utf-8;";
+		var tb = ",";
         var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
         hd += "curvesize(m)" + tb + "rotationdir" + tb + "gimbalmode" + tb + "gimbalpitchangle" + tb;
         for (i = 1; i <= 15; i++)
@@ -571,12 +571,13 @@ async function saveFl(type) {
                     ps = pois[j];
             }
             blStr += "\r\n" + waypoints[i].getCsv(tb, ps);
-
-        }
+        
+		
+		}
     } else if (type.includes("tl csv")) {
-        flNm = "tl.csv";
-        txType = "text/csv;charset=utf-8;";
-        var tb = ",";
+		flNm ="tl.csv";
+		txType = "text/csv;charset=utf-8;";
+		var tb = ",";
         var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
         hd += "curvesize(m)" + tb + "rotationdir" + tb + "gimbalmode" + tb + "gimbalpitchangle" + tb;
         for (i = 1; i <= 15; i++)
@@ -600,11 +601,11 @@ async function saveFl(type) {
 
     }
 
-    /*
+/*
 
     // (A) CREATE BLOB OBJECT
     var xBlob = new Blob([blStr], {
-    type: "text/xml"
+        type: "text/xml"
     });
 
     // (B) FILE HANDLER & FILE STREAM
@@ -615,18 +616,81 @@ async function saveFl(type) {
     await fileStream.write(xBlob);
     await fileStream.close();
 
-     */
+*/
+	
+	
+	/*		
+			var ua = window.navigator.userAgent;
+			if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
+                var e = new Blob([blStr], {
+                    type: txType
+                });
+                navigator.msSaveBlob(e, flNm)
+            } else {
+ 			   var r = navigator.userAgent.indexOf("Chrome") > -1,
+                o = navigator.userAgent.indexOf("Safari") > -1;
 
-    saveCSVtoFile(blStr, flNm);
+				if (r && o && (o = !1), o)
+                    $.ajax({
+                        type: "POST",
+                        url: "/geturl",
+                        data: {
+                            t: "c",
+                            buf: blStr
+                        },
+                        dataType: "json"
+                    }).success(function (g) {
+                        window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
+                    }).fail(function () {});
+                else {
+                    var a = $("<a>");
+                    if (a.get(0).download !== void 0) {
+                        var e = new Blob([blStr], {
+                            type: txType
+                        }),
+                        s = URL.createObjectURL(e);
+                        a.get(0).setAttribute("href", s),
+                        a.get(0).setAttribute("download", flNm),
+                        a.get(0).style.opacity = 0,
+                        $("body").append(a),
+                        a.show().focus();
+ 						
+						var l = document.createEvent("MouseEvents");
+                        l.initEvent("click", !1, !1),
+                        a.get(0).dispatchEvent(l),
+                        a.hide(),
+                        a.remove()
+                    }
+                }
+            }
+
+
+*/
+
+   //saveCSVtoFile(blStr, flNm, txType);
+
+
+      const link = document.createElement("a");
+         const file = new Blob([blStr], { type: txType });
+         link.href = URL.createObjectURL(file);
+         link.download = flNm;
+         link.click();
+         URL.revokeObjectURL(link.href);
+
+
+
 
 }
 
-function saveCSVtoFile(i, t) {
-    if (this.detectIE()) {
-        var e = new Blob([i], {
-            type: "text/csv;charset=utf-8;"
-        });
-        navigator.msSaveBlob(e, t)
+
+function saveCSVtoFile(i, t,txType) {
+   
+ 
+
+ 	var ua = window.navigator.userAgent;
+	if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
+        var e = new Blob([blStr], {type: txType});
+                navigator.msSaveBlob(e, flNm)
     } else {
         var r = navigator.userAgent.indexOf("Chrome") > -1,
         o = navigator.userAgent.indexOf("Safari") > -1;
@@ -636,18 +700,16 @@ function saveCSVtoFile(i, t) {
                 url: "/geturl",
                 data: {
                     t: "c",
-                    buf: i
+                    buf: blStr
                 },
                 dataType: "json"
             }).success(function (g) {
                 window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
             }).fail(function () {});
         else {
-            var a = $("<a>");
+   		  var a = $("<a>");
             if (a.get(0).download !== void 0) {
-                var e = new Blob([i], {
-                    type: "text/csv;charset=utf-8;"
-                }),
+                var e = new Blob([blStr], {type: txType}),
                 s = URL.createObjectURL(e);
                 a.get(0).setAttribute("href", s),
                 a.get(0).setAttribute("download", t),
@@ -664,6 +726,10 @@ function saveCSVtoFile(i, t) {
     }
 }
 
+
+
+
+
 function openFl(type) {
 
     var fl = $("#fileimport").get(0).files[0];
@@ -672,7 +738,7 @@ function openFl(type) {
         var reader = new FileReader();
         reader.readAsText(fl);
         reader.onload = function () {
-            var xmlDoc = new DOMParser().parseFromString(reader.result, "text/xml");
+             var xmlDoc = new DOMParser().parseFromString(reader.result, "text/xml");
 
             w = xmlDoc.getElementsByTagName("Waypoint");
             for (i = 0; i < w.length; i++) {
@@ -681,8 +747,8 @@ function openFl(type) {
                 //wp.refreshMarkers();
                 waypoints.push(wp);
             }
-
-            p = xmlDoc.getElementsByTagName("POI");
+           
+		   p = xmlDoc.getElementsByTagName("POI");
             for (i = 0; i < p.length; i++) {
                 po = new Poi(null, i);
                 po.setFromXml(p[i]);
@@ -705,17 +771,17 @@ function openFl(type) {
                     }
                 }
             }
-            redrawPath();
-        }
-    } else if (/\.csv$/i.test(fl.name)) {
+ 			redrawPath();
+		}
+ 	} else if (/\.csv$/i.test(fl.name)) {
         var reader = new FileReader();
         reader.readAsText(fl);
         reader.onload = function () {
             alert(reader.result);
         }
-
-        //redrawPath();
-    }
+        
+		//redrawPath();
+	}
 
     imp = document.getElementById("fileimport");
     imp.hidden = true;
