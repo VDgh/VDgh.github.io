@@ -620,28 +620,25 @@ async function saveFl(type) {
 			
 			var ua = window.navigator.userAgent;
 			if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
-                var e = new Blob([blStr], {type: txType});
+                var e = new Blob([blStr], {
+                    type: txType
+                });
                 navigator.msSaveBlob(e, flNm)
             } else {
  			   var r = navigator.userAgent.indexOf("Chrome") > -1,
                 o = navigator.userAgent.indexOf("Safari") > -1;
 
 				if (r && o && (o = !1), o)
-   
-					var blob = new Blob([blStr], {type: txType});
-
-				
-					$.ajax({
+                    $.ajax({
                         type: "POST",
                         url: "/geturl",
                         data: {
                             t: "c",
-                            buf: blob
+                            buf: blStr
                         },
-                        //dataType: "json"
+                        dataType: "json"
                     }).success(function (g) {
-                        alert("mina");
-						
+                        alert("success  " + g.n);
 						window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
                     }).fail(function () {});
                 else {
