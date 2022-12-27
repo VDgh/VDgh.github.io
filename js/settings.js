@@ -618,43 +618,46 @@ async function saveFl(type) {
 
 */
 			
-			var ua = window.navigator.userAgent;
-			if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
-                var e = new Blob([blStr], {
-                    type: txType
-                });
-                navigator.msSaveBlob(e, flNm)
-            } else {
- 			   var r = navigator.userAgent.indexOf("Chrome") > -1,
-                o = navigator.userAgent.indexOf("Safari") > -1;
+saveCSVtoFile(blStr,flNm);
 
-				if (r && o && (o = !1), o)
+
+}
+
+
+       saveCSVtoFile: function (i, t) {
+            if (this.detectIE()) {
+                var e = new Blob([i], {
+                    type: "text/csv;charset=utf-8;"
+                });
+                navigator.msSaveBlob(e, t)
+            } else {
+                var r = navigator.userAgent.indexOf("Chrome") > -1,
+                o = navigator.userAgent.indexOf("Safari") > -1;
+                if (r && o && (o = !1), o)
                     $.ajax({
                         type: "POST",
                         url: "/geturl",
                         data: {
                             t: "c",
-                            buf: blStr
+                            buf: i
                         },
                         dataType: "json"
                     }).success(function (g) {
-                        alert("success  " + g.n);
-						window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
+                        window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
                     }).fail(function () {});
                 else {
                     var a = $("<a>");
                     if (a.get(0).download !== void 0) {
-                        var e = new Blob([blStr], {
-                            type: txType
+                        var e = new Blob([i], {
+                            type: "text/csv;charset=utf-8;"
                         }),
                         s = URL.createObjectURL(e);
                         a.get(0).setAttribute("href", s),
-                        a.get(0).setAttribute("download", flNm),
+                        a.get(0).setAttribute("download", t),
                         a.get(0).style.opacity = 0,
                         $("body").append(a),
                         a.show().focus();
- 						
-						var l = document.createEvent("MouseEvents");
+                        var l = document.createEvent("MouseEvents");
                         l.initEvent("click", !1, !1),
                         a.get(0).dispatchEvent(l),
                         a.hide(),
@@ -662,11 +665,7 @@ async function saveFl(type) {
                     }
                 }
             }
-
-
-
-
-}
+        },
 
 
 
