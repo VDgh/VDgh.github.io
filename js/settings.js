@@ -35,34 +35,74 @@ function updateSettings(upNmb) {
         bezierVal(2, waypoints[upNmb].smoothing);
 
         editLookAt();
-        pos = null;
+        pos = null;altDif=0;
         selLookAt.value = "Free Selection";
         if (upNmb < waypoints.length - 1 && waypoints[upNmb].headingId == waypoints[upNmb + 1].id) {
             selLookAt.value = "Next Waypoint";
             pos = waypoints[upNmb + 1].position;
-        } else if (upNmb > 0 && waypoints[upNmb].headingId == waypoints[upNmb - 1].id) {
+            altDif=waypoints[upNmb].altitude-waypoints[upNmb + 1].altitude;
+		} else if (upNmb > 0 && waypoints[upNmb].headingId == waypoints[upNmb - 1].id) {
             selLookAt.value = "Previous Waypoint";
             pos = waypoints[upNmb - 1].position;
-        } else {
+          altDif=waypoints[upNmb].altitude-waypoints[upNmb - 1].altitude;
+       } else {
             for (let i = 0; i < pois.length; i++) {
                 if (waypoints[upNmb].headingId == pois[i].id) {
                     selLookAt.value = "POI - " + (i + 1);
                     pos = pois[i].position;
                     waypoints[upNmb].markColor = pois[i].markColor;
-                }
+					altDif=waypoints[upNmb].altitude-pois[i].altitude;
+               }
             }
         }
         if (selLookAt.value == "Free Selection") {
             waypoints[upNmb].headingId = 0;
-        }
+         }
 
-        if (pos != null)
+        if (pos != null){
             waypoints[upNmb].azimuth = positionToAzimuth(waypoints[upNmb].position, pos);
+			dis =distance(waypoints[upNmb].position, pos);
+			waypoints[upNmb].pitchAngle =Math.round(toDegrees(Math.atan2( altDif,dis)));
+		}
+
 
         waypoints[upNmb].refreshMarkers();
 
         azimithVal(waypoints[upNmb].azimuth);
         pitchVal(waypoints[upNmb].pitchAngle);
+
+        let container = document.getElementById("actCont");
+        for (i = container.children.length - 1; i > 1; i--)
+            container.removeChild(container.children[i]);
+
+        for (i = 0; i < waypoints[upNmb].listActivities.length; i++) {
+            per = addAction();
+
+            selLookAt = per.querySelector("#selLookAt");
+            degInput = per.querySelector("#degInput");
+            degLabel = per.querySelector("#degLabel");
+            secInput = per.querySelector("#secInput");
+            secLabel = per.querySelector("#secLabel");
+            btnCCW = per.querySelector("#btnCCW");
+
+            selLookAt.value = waypoints[upNmb].listActivities[i][0];
+
+            if (String(waypoints[upNmb].listActivities[i][1]) != 'null') {
+                degInput.hidden = false;
+                degInput.value = waypoints[upNmb].listActivities[i][1];
+                degLabel.hidden = false;
+            }
+            if (String(waypoints[upNmb].listActivities[i][2]) != 'null') {
+                secInput.hidden = false;
+                secInput.value = waypoints[upNmb].listActivities[i][2];
+                secLabel.hidden = false;
+            }
+            if (String(waypoints[upNmb].listActivities[i][3]) != 'null') {
+                btnCCW.hidden = false;
+                btnCCW.innerHTML = waypoints[upNmb].listActivities[i][3];
+            }
+
+        }
 
     } else {}
 }
@@ -128,65 +168,103 @@ function displayChange(nmb) {
 function deleteWpPoi() {
 
     selNmb = parseInt(display.value) - 1;
-
+    delId = 0;
     if (radioWp.checked) {
+        delId = waypoints[selNmb].id;
         waypoints[selNmb].deleteWp();
         waypoints.splice(selNmb, 1);
         for (let i = 0; i < waypoints.length; i++) {
             waypoints[i].index = i;
+            waypoints[i].refreshMarkers();
         }
     } else {
+        delId = pois[selNmb].id;
         pois[selNmb].deletePoi();
         pois.splice(selNmb, 1);
         for (let i = 0; i < pois.length; i++) {
             pois[i].index = i;
+            pois[i].refreshMarkers();
         }
     }
 
-    path = [];
     for (let i = 0; i < waypoints.length; i++) {
-
-        for (let j = 0; j < waypoints.length; j++) {
-            path.push(waypoints[j].position);
-            if (waypoints[i].headingId == waypoints[j].id) {
-                waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[j].position);
-            }
+        if (waypoints[i].headingId == delId) {
+            waypoints[i].headingId = 0;
+            waypoints[i].azimuth = 0;
+            waypoints[i].pitchAngle = 0;
+            waypoints[i].refreshMarkers();
         }
-        for (let j = 0; j < pois.length; j++) {
-            if (waypoints[i].headingId == pois[j].id) {
-                waypoints[i].markColor = pois[j].markColor;
-                waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[j].position);
-            }
-        }
-        waypoints[i].refreshMarkers();
-        path.push(waypoints[i].position);
     }
 
-    poly.setPath(path);
-
-    //redrawPath();
+    redrawPath();
 }
 
-function selectAction(value) {
-    let container = document.getElementById("actCont");
+function selectAction(sel, id) {
 
-    switch (value) {
+    sel.old = sel.recent;
+    sel.recent = sel.value;
+
+    let container = document.getElementById("actCont");
+    let per = document.getElementById(sel.parentElement.id);
+
+    actIx = Array.from(container.children).indexOf(per) - 2;
+
+    degInput = per.querySelector("#degInput");
+    degLabel = per.querySelector("#degLabel");
+    secInput = per.querySelector("#secInput");
+    secLabel = per.querySelector("#secLabel");
+    btnCCW = per.querySelector("#btnCCW");
+
+    switch (sel.value) {
+    case "Select":
+    case "Take Photo":
+    case "Start Video":
+    case "Stop Video":
+        degInput.hidden = true;
+        degLabel.hidden = true;
+        secInput.hidden = true;
+        secLabel.hidden = true;
+        btnCCW.hidden = true;
+        break;
     case "Stay For":
+        degInput.hidden = true;
+        degLabel.hidden = true;
+        secInput.hidden = false;
+        secLabel.hidden = false;
+        btnCCW.hidden = true;
         break;
     case "Rotate Aircraft":
     case "Orbit":
-        bt = per.querySelector("#btnCCW");
-        bt.removeAttribute("hidden");
+        degInput.hidden = false;
+        degLabel.hidden = false;
+        secInput.hidden = true;
+        secLabel.hidden = true;
+        btnCCW.hidden = false;
+        break;
+    case "Tilt Camera":
+        degInput.hidden = false;
+        degLabel.hidden = false;
+        secInput.hidden = true;
+        secLabel.hidden = true;
+        btnCCW.hidden = true;
         break;
     case "Delete":
         container.removeChild(per);
+        if (container.children.length == 2) {
+            let bzrCont = document.getElementById("bzrCont");
+            bzrCont.disabled = false;
+        }
         break;
     case "Insert":
+        sel.value = sel.old;
         let node = document.getElementById("act100");
         let clone = node.cloneNode(true);
-        container.insertBefore(clone, per);
+        clone.hidden = false;
+        clone.id = parseInt(Math.random() * 1000000)
+            container.insertBefore(clone, per);
         break;
     }
+    readWpActivities();
 }
 
 function addAction() {
@@ -194,14 +272,54 @@ function addAction() {
     let node = document.getElementById("act100");
     let clone = node.cloneNode(true);
     let container = document.getElementById("actCont");
-    //alert(container.childElementCount);
-    clone.removeAttribute("hidden");
-    clone.id = parseInt(Math.random() * 1000000)
+    clone.hidden = false;
+    clone.id = parseInt(Math.random() * 1000000);
+    container.appendChild(clone);
 
-        container.appendChild(clone);
-    //alert(container.childElementCount);
+    bezierVal(2, 0);
+    let bzrCont = document.getElementById("bzrCont");
+    bzrCont.disabled = true;
+    return clone;
 }
 
+function rotCCW(btn) {
+    if (btn.innerHTML != "CW")
+        btn.innerHTML = "CW";
+    else
+        btn.innerHTML = "CCW"
+            readWpActivities();
+}
+
+function readWpActivities() {
+
+    waypoints[selWp].listActivities = [];
+    let container = document.getElementById("actCont");
+    for (i = 2; i < container.children.length; i++) {
+        per = container.children[i];
+        selLookAt = per.querySelector("#selLookAt");
+        degInput = per.querySelector("#degInput");
+        secInput = per.querySelector("#secInput");
+        btnCCW = per.querySelector("#btnCCW");
+        sngAct = [];
+        sngAct.push(selLookAt.value);
+        if (degInput.hidden)
+            sngAct.push(null);
+        else
+            sngAct.push(degInput.value);
+        if (secInput.hidden)
+            sngAct.push(null);
+        else
+            sngAct.push(secInput.value);
+        if (btnCCW.hidden)
+            sngAct.push(null);
+        else
+            sngAct.push(btnCCW.innerHTML);
+
+        waypoints[selWp].listActivities.push(sngAct);
+    }
+
+}
+//------------------------------------------------------------------------
 function editLookAt() {
 
     var sl = document.getElementById("selLookAt");
@@ -239,33 +357,38 @@ function selectLookAt(el) {
 
     waypoints[selWp].headingId = 0;
 
-    pos = null;
+    pos = null; altDif=0;
     if (el.includes('POI - ')) {
         po = parseInt(el.replace("POI - ", ""));
 
         waypoints[selWp].headingId = pois[po - 1].id;
         waypoints[selWp].markColor = pois[po - 1].markColor;
         pos = pois[po - 1].position;
-    }
+        altDif=waypoints[selWp].altitude-pois[po - 1].altitude;
+	}
     if (el.includes('Next')) {
         waypoints[selWp].headingId = waypoints[selWp + 1].id;
         waypoints[selWp].markColor = markerColor;
         pos = waypoints[selWp + 1].position;
-    }
+        altDif=waypoints[selWp].altitude-waypoints[selWp + 1].altitude;
+ }
     if (el.includes('Previous')) {
         waypoints[selWp].headingId = waypoints[selWp - 1].id;
         waypoints[selWp].markColor = markerColor;
         pos = waypoints[selWp - 1].position;
-    }
+        altDif=waypoints[selWp].altitude-waypoints[selWp - 1].altitude;
+	}
 
-    if (pos != null)
+    if (pos != null){
         waypoints[selWp].azimuth = positionToAzimuth(waypoints[selWp].position, pos);
-    else
-        waypoints[selWp].azimuth = 0;
-
+		dis =distance(waypoints[selWp].position, pos);
+		waypoints[selWp].pitchAngle =Math.round(toDegrees(Math.atan2( altDif,dis)));
+	}else{
+        waypoints[selWp].azimuth = 0;waypoints[selWp].pitchAngle=0;
+	}
     waypoints[selWp].refreshMarkers();
     azimithVal(waypoints[selWp].azimuth);
-
+    pitchVal(waypoints[selWp].azimuth);
 }
 
 function bezierVal(src, vl) {
@@ -400,10 +523,11 @@ window.onclick = function (event) {
     }
 }
 
-async function saveFlOld(type) {
+function saveFl(type) {
 
+    var flNm = "wp.xml";
+    var txType = "text/xml;charset=utf-8;";
     var blStr = "aaa";
-
     if (type == "xml") {
         /*const xmlStr = (
         `<?xml version="1.0" encoding="UTF-8"?>
@@ -437,6 +561,8 @@ async function saveFlOld(type) {
 
         blStr = xmlStr + docStr;
     } else if (type.includes("wp csv")) {
+        flNm = "wp.csv";
+        txType = "text/csv;charset=utf-8;";
         var tb = ",";
         var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
         hd += "curvesize(m)" + tb + "rotationdir" + tb + "gimbalmode" + tb + "gimbalpitchangle" + tb;
@@ -457,8 +583,11 @@ async function saveFlOld(type) {
                     ps = pois[j];
             }
             blStr += "\r\n" + waypoints[i].getCsv(tb, ps);
+
         }
     } else if (type.includes("tl csv")) {
+		flNm = "tl.csv";
+        txType = "text/csv;charset=utf-8;";
         var tb = ",";
         var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
         hd += "curvesize(m)" + tb + "rotationdir" + tb + "gimbalmode" + tb + "gimbalpitchangle" + tb;
@@ -483,252 +612,16 @@ async function saveFlOld(type) {
 
     }
 
-    // (A) CREATE BLOB OBJECT
-    var xBlob = new Blob([blStr], {
-        type: "text/xml"
+    const link = document.createElement("a");
+    const file = new Blob([blStr], {
+        type: txType
     });
-
-    // (B) FILE HANDLER & FILE STREAM
-    const fileHandle = await getNewFileHandle();
-    const fileStream = await fileHandle.createWritable();
-
-    // (C) WRITE FILE
-    await fileStream.write(xBlob);
-    await fileStream.close();
-}
-
-function getNewFileHandle() {
-    const opts = {
-        types: [{
-                description: 'Text file',
-                accept: {
-                    'text/xml': ['.xml'],
-                    'text/plain': ['.txt']
-                },
-            }
-        ],
-    };
-    return window.showSaveFilePicker(opts);
-}
-
-async function saveFl(type) {
-
-    var flNm ="wp.xml";
-	var txType = "text/xml;charset=utf-8;";
-	var blStr = "aaa";
-    if (type == "xml") {
-        /*const xmlStr = (
-        `<?xml version="1.0" encoding="UTF-8"?>
-        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-        <url><loc>https://erikmartinjordan.com</loc></url>
-        </urlset>
-        `
-        );	*/
-        const xmlStr = (`<?xml version="1.0" encoding="UTF-8"?>`);
-        var doc = document.implementation.createDocument("", "", null);
-
-        var miElem = doc.createElement("Mission");
-
-        var wpElem1 = doc.createElement("Waypoints");
-
-        for (let i = 0; i < waypoints.length; i++) {
-            wpElem1.appendChild(waypoints[i].getXml(doc));
-        }
-
-        miElem.appendChild(wpElem1);
-        var poiElem1 = doc.createElement("PointsOfInterest");
-        for (let i = 0; i < pois.length; i++) {
-            poiElem1.appendChild(pois[i].getXml(doc));
-        }
-        miElem.appendChild(poiElem1);
-
-        doc.appendChild(miElem);
-
-        const serializer = new XMLSerializer();
-        const docStr = serializer.serializeToString(doc);
-
-        blStr = xmlStr + docStr;
-    } else if (type.includes("wp csv")) {
-        flNm ="wp.csv";
-		txType = "text/csv;charset=utf-8;";
-		var tb = ",";
-        var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
-        hd += "curvesize(m)" + tb + "rotationdir" + tb + "gimbalmode" + tb + "gimbalpitchangle" + tb;
-        for (i = 1; i <= 15; i++)
-            hd += "actiontype" + i + tb + "actionparam" + i + tb;
-        hd += "altitudemode" + tb + "speed(m/s)" + tb + "poi_latitude" + tb + "poi_longitude" + tb
-        hd += "poi_altitude(m)" + tb + "poi_altitudemode" + tb + "photo_timeinterval" + tb + "photo_distinterval";
-
-        blStr = hd;
-        for (let i = 0; i < waypoints.length; i++) {
-            let ps = null;
-            for (let j = 0; j < waypoints.length; j++) {
-                if (waypoints[i].headingId == waypoints[j].id)
-                    ps = waypoints[j];
-            }
-            for (let j = 0; j < pois.length; j++) {
-                if (waypoints[i].headingId == pois[j].id)
-                    ps = pois[j];
-            }
-            blStr += "\r\n" + waypoints[i].getCsv(tb, ps);
-        
-		
-		}
-    } else if (type.includes("tl csv")) {
-		flNm ="tl.csv";
-		txType = "text/csv;charset=utf-8;";
-		var tb = ",";
-        var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
-        hd += "curvesize(m)" + tb + "rotationdir" + tb + "gimbalmode" + tb + "gimbalpitchangle" + tb;
-        for (i = 1; i <= 15; i++)
-            hd += "actiontype" + i + tb + "actionparam" + i + tb;
-        hd += "altitudemode" + tb + "speed(m/s)" + tb + "poi_latitude" + tb + "poi_longitude" + tb
-        hd += "poi_altitude(m)" + tb + "poi_altitudemode" + tb + "photo_timeinterval" + tb + "photo_distinterval";
-
-        blStr = hd;
-        for (let i = 0; i < tmLn.length; i++) {
-            let ps = null;
-            for (let j = 0; j < tmLn.length; j++) {
-                if (tmLn[i].headingId == tmLn[j].id)
-                    ps = tmLn[j];
-            }
-            for (let j = 0; j < pois.length; j++) {
-                if (tmLn[i].headingId == pois[j].id)
-                    ps = pois[j];
-            }
-            blStr += "\r\n" + tmLn[i].getCsv(tb, ps);
-        }
-
-    }
-
-/*
-
-    // (A) CREATE BLOB OBJECT
-    var xBlob = new Blob([blStr], {
-        type: "text/xml"
-    });
-
-    // (B) FILE HANDLER & FILE STREAM
-    const fileHandle = await getNewFileHandle();
-    const fileStream = await fileHandle.createWritable();
-
-    // (C) WRITE FILE
-    await fileStream.write(xBlob);
-    await fileStream.close();
-
-*/
-	
-	
-	/*		
-			var ua = window.navigator.userAgent;
-			if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
-                var e = new Blob([blStr], {
-                    type: txType
-                });
-                navigator.msSaveBlob(e, flNm)
-            } else {
- 			   var r = navigator.userAgent.indexOf("Chrome") > -1,
-                o = navigator.userAgent.indexOf("Safari") > -1;
-
-				if (r && o && (o = !1), o)
-                    $.ajax({
-                        type: "POST",
-                        url: "/geturl",
-                        data: {
-                            t: "c",
-                            buf: blStr
-                        },
-                        dataType: "json"
-                    }).success(function (g) {
-                        window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
-                    }).fail(function () {});
-                else {
-                    var a = $("<a>");
-                    if (a.get(0).download !== void 0) {
-                        var e = new Blob([blStr], {
-                            type: txType
-                        }),
-                        s = URL.createObjectURL(e);
-                        a.get(0).setAttribute("href", s),
-                        a.get(0).setAttribute("download", flNm),
-                        a.get(0).style.opacity = 0,
-                        $("body").append(a),
-                        a.show().focus();
- 						
-						var l = document.createEvent("MouseEvents");
-                        l.initEvent("click", !1, !1),
-                        a.get(0).dispatchEvent(l),
-                        a.hide(),
-                        a.remove()
-                    }
-                }
-            }
-
-
-*/
-
-   //saveCSVtoFile(blStr, flNm, txType);
-
-
-      const link = document.createElement("a");
-         const file = new Blob([blStr], { type: txType });
-         link.href = URL.createObjectURL(file);
-         link.download = flNm;
-         link.click();
-         URL.revokeObjectURL(link.href);
-
-
-
+    link.href = URL.createObjectURL(file);
+    link.download = flNm;
+    link.click();
+    URL.revokeObjectURL(link.href);
 
 }
-
-
-function saveCSVtoFile(i, t,txType) {
-   
- 
-
- 	var ua = window.navigator.userAgent;
-	if (ua.indexOf('MSIE')>-1 || ua.indexOf('Edge')>-1 ) {
-        var e = new Blob([blStr], {type: txType});
-                navigator.msSaveBlob(e, flNm)
-    } else {
-        var r = navigator.userAgent.indexOf("Chrome") > -1,
-        o = navigator.userAgent.indexOf("Safari") > -1;
-        if (r && o && (o = !1), o)
-            $.ajax({
-                type: "POST",
-                url: "/geturl",
-                data: {
-                    t: "c",
-                    buf: blStr
-                },
-                dataType: "json"
-            }).success(function (g) {
-                window.location.assign(g.n + "&t=c&n=" + encodeURIComponent(t))
-            }).fail(function () {});
-        else {
-   		  var a = $("<a>");
-            if (a.get(0).download !== void 0) {
-                var e = new Blob([blStr], {type: txType}),
-                s = URL.createObjectURL(e);
-                a.get(0).setAttribute("href", s),
-                a.get(0).setAttribute("download", t),
-                a.get(0).style.opacity = 0,
-                $("body").append(a),
-                a.show().focus();
-                var l = document.createEvent("MouseEvents");
-                l.initEvent("click", !1, !1),
-                a.get(0).dispatchEvent(l),
-                a.hide(),
-                a.remove()
-            }
-        }
-    }
-}
-
-
-
-
 
 function openFl(type) {
 
@@ -738,18 +631,18 @@ function openFl(type) {
         var reader = new FileReader();
         reader.readAsText(fl);
         reader.onload = function () {
-             var xmlDoc = new DOMParser().parseFromString(reader.result, "text/xml");
+            var xmlDoc = new DOMParser().parseFromString(reader.result, "text/xml");
 
             w = xmlDoc.getElementsByTagName("Waypoint");
-            for (i = 0; i < w.length; i++) {
+            for (let i = 0; i < w.length; i++) {
                 wp = new Waypoint(null, i);
                 wp.setFromXml(w[i]);
                 //wp.refreshMarkers();
                 waypoints.push(wp);
             }
-           
-		   p = xmlDoc.getElementsByTagName("POI");
-            for (i = 0; i < p.length; i++) {
+
+            p = xmlDoc.getElementsByTagName("POI");
+            for (let i = 0; i < p.length; i++) {
                 po = new Poi(null, i);
                 po.setFromXml(p[i]);
                 po.refreshMarkers();
@@ -760,28 +653,32 @@ function openFl(type) {
                 for (let j = 0; j < waypoints.length; j++) {
                     if (waypoints[i].headingId == waypoints[j].id) {
                         waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[j].position);
-                        waypoints[i].refreshMarkers();
+                        dis =distance(waypoints[i].position, waypoints[j].position);
+						waypoints[i].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[i].altitude-waypoints[j].altitude),dis)));
+						waypoints[i].refreshMarkers();
                     }
                 }
                 for (let j = 0; j < pois.length; j++) {
                     if (waypoints[i].headingId == pois[j].id) {
                         waypoints[i].markColor = pois[j].markColor;
                         waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[j].position);
-                        waypoints[i].refreshMarkers();
+                        dis =distance(waypoints[i].position, pois[j].position);
+						waypoints[i].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[i].altitude-pois[j].altitude),dis)));
+						waypoints[i].refreshMarkers();
                     }
                 }
             }
- 			redrawPath();
-		}
- 	} else if (/\.csv$/i.test(fl.name)) {
+            redrawPath();
+        }
+    } else if (/\.csv$/i.test(fl.name)) {
         var reader = new FileReader();
         reader.readAsText(fl);
         reader.onload = function () {
             alert(reader.result);
         }
-        
-		//redrawPath();
-	}
+
+        //redrawPath();
+    }
 
     imp = document.getElementById("fileimport");
     imp.hidden = true;
@@ -789,9 +686,7 @@ function openFl(type) {
 }
 
 function path3d(val) {
-
     redraw3D();
-
 }
 
 function map3d() {

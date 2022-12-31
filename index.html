@@ -21,12 +21,13 @@
 
 		<!--Add a script by google -->
 		<!--AIzaSyACXVz5oXNw9IQuvqxcmHNWdc_1Edt45jI-->
+		<!==		
 
 		<script async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyCp4BFOpsm0SZU99ls4EAGflJyG-Jbvzh4   
 				&callback=initMap&libraries=geometry,places,elevation"/>
 
-		<!==		
+
 		<script	async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg 
 				&callback=initMap&libraries=geometry,places,elevation"/>
@@ -64,7 +65,7 @@
 
 
 
-			<div class="linMs" id="actCont" >
+			<div class="linMs" id="actTmLn" >
 				<div class="lin" style=" height:30px;" >
 					<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="timeLine()">Timeline</button>
 					<input class="txt" id="tlInpit" style="height:20px; margin-right:10px;" value="2.0" type="text" onchange="tmLnVal(value)"/>
@@ -164,33 +165,36 @@
 					<label class ="lbl" >Pitch Angle [deg]</label>
 					<input class="txt" id="pitchInpit" value="0" type="text" onchange="pitchVal(value)"/>
 					<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 20px;">
-						<input type="range"  min="-90" max="15" value="0" class="slider" id="pitchSlider" onchange="pitchVal(value)"/>
+						<input type="range"  min="-20" max="90" value="0" class="slider" id="pitchSlider" onchange="pitchVal(value)"/>
 					</div>
 				</div>
 			</fieldset>
 		</div>
 
-		<div class="linAct" id="bzrCont" >
+		<div class="linAct"  >
 			<div class="lin" style=" height:38px;" >
 				<label class ="lbl" >Bezier Smoothing</label>
 			</div>	
-			<div class="lin" style=" height:38px;" >
-				<input class="txt" id="bzInpit" value=".8" type="text" onchange="bezierVal(2,value)"/>
-				<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
-					<input type="range"  min="0" max="100" value="80" style="width:250px;float:right;" id="bzSlider" onchange="bezierVal(1,value)"/>
-				</div>
-			</div>	
+			<fieldset class="linEn" id="bzrCont"  >
+				<div class="lin"  style=" height:38px;"  >
+					<input class="txt" id="bzInpit" value=".8" type="text" onchange="bezierVal(2,value)"/>
+					<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
+						<input type="range"  min="0" max="100" value="80" style="width:250px;float:right;" id="bzSlider" onchange="bezierVal(1,value)"/>
+					</div>
+				</div>	
+			</fieldset>
 		</div>	
 
 
-		<div class="linAct" id="actCont" >
-			<div class="lin"  style=" height:38px;" >
+		<div class="linAct" id="actCont"  >
+			<div class="lin"  style=" height:35px;" >
 				<label class ="lbl" >Actions</label>
 				<button  class="ttl" style=" height:100%; float: right;"  onclick="addAction()">Add</button>
 			</div>							
 
-			<div class="lin"  id = "act100" name="0" style=" height:38px;" hidden>
-				<select name="lookAt" id="selLookAt"  onchange="selectAction(this,this.parentNode.id);">
+			<div class="lin"  id = "act100" name="0" style=" height:30px;" hidden >
+				<select class="lookAt" id="selLookAt"  onchange="selectAction(this);">
+					<option value="Select">Select</option>
 					<option value="Stay For">Stay For</option>
 					<option value="Take Photo">Take Photo</option>
 					<option value="Start Video">Start Video</option>
@@ -200,20 +204,14 @@
 					<option value="Orbit">Orbit</option>
 					<option value="Delete">--Delete--</option>
 					<option value="Insert">--Insert--</option>
-
 				</select>
-				<input class="txt" id="spInpit" value="3.5" type="text" onchange="speedVal(2,value)"hidden></input>
-				<label class="actLabel" hidden > deg </label>
-				<input class="txt" id="spInpit" value="3.5" type="text" onchange="speedVal(2,value)"hidden></input>
-				<label class="actLabel" hidden> sec </label>
-				<button  class="ttl" id="btnCCW" style=" height:100%; float: right;"  onclick="rotCCW"hidden>CCW</button>
+				<input class="txt" id="degInput" value="0" type="text" onchange="readWpActivities()" hidden ></input>
+				<label class="actLabel"  id="degLabel" hidden > deg </label>
+				<input class="txt" id="secInput" value="1" type="text" onchange="readWpActivities()" hidden ></input>
+				<label class="actLabel" id="secLabel" hidden > sec </label>
+				<button  class="ttl" id="btnCCW" style=" height:80%; float: right;"  onclick="rotCCW(this)" hidden >CCW</button>
 			</div>							
-
-
 		</div>	
-
-
-
 	</div>	
 
 	<div id="POI" class="tabcontent">
@@ -228,7 +226,7 @@
 			<label class ="lbl" >Altitude [m]</label>
 			<input class="txt" id="altInpit" value="25" type="text" onchange="altitudeVal(value)"/>
 			<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
-				<input type="range"  min="1" max="100" value="25" class="slider" id="altSlider" onchange="altitudeVal(value)"/>
+				<input type="range"  min="-100" max="100" value="25" class="slider" id="altSlider" onchange="altitudeVal(value)"/>
 			</div>
 		</div>									</div>
 
