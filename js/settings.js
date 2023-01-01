@@ -34,11 +34,12 @@ function updateSettings(upNmb) {
         speedVal(2, waypoints[upNmb].speed);
         bezierVal(2, waypoints[upNmb].smoothing);
 
-        editLookAt();
+        selLookAt = document.getElementById("selLookAt");
+		editLookAt();
         pos = null;altDif=0;
         selLookAt.value = "Free Selection";
         if (upNmb < waypoints.length - 1 && waypoints[upNmb].headingId == waypoints[upNmb + 1].id) {
-            selLookAt.value = "Next Waypoint";
+ 			selLookAt.value = "Next Waypoint";
             pos = waypoints[upNmb + 1].position;
             altDif=waypoints[upNmb].altitude-waypoints[upNmb + 1].altitude;
 		} else if (upNmb > 0 && waypoints[upNmb].headingId == waypoints[upNmb - 1].id) {
@@ -46,13 +47,15 @@ function updateSettings(upNmb) {
             pos = waypoints[upNmb - 1].position;
           altDif=waypoints[upNmb].altitude-waypoints[upNmb - 1].altitude;
        } else {
-            for (let i = 0; i < pois.length; i++) {
+            
+				
+			for (let i = 0; i < pois.length; i++) {
                 if (waypoints[upNmb].headingId == pois[i].id) {
                     selLookAt.value = "POI - " + (i + 1);
-                    pos = pois[i].position;
+ 					pos = pois[i].position;
                     waypoints[upNmb].markColor = pois[i].markColor;
 					altDif=waypoints[upNmb].altitude-pois[i].altitude;
-               }
+ 			   }
             }
         }
         if (selLookAt.value == "Free Selection") {
@@ -138,7 +141,9 @@ function displayChange(nmb) {
             }
 
             selWp = dsp - 1;
-        } else {
+			map.setCenter(waypoints[selWp].position);
+
+		} else {
             dsp = "";
             selWp = -1;
         }
@@ -150,7 +155,9 @@ function displayChange(nmb) {
                 dsp = 1;
             }
             selPoi = dsp - 1;
-        } else {
+			map.setCenter(pois[selPoi].position);
+		   
+		} else {
             dsp = "";
             selPoi = -1;
         }
