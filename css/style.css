@@ -75,8 +75,8 @@
 	}
 
 
-#Waypoints {background-color:#fafaff; overflow-y: scroll;	height: 100%;padding-top:10px;}
-#POI {background-color: #fafffa;	height: 100%;padding-top:10px;}
+#Waypoints {background-color:#fafaff; overflow-y: scroll;	height: 100%;padding-top:10px; display: block;}
+#POI {background-color: #fafffa;	height: 100%;padding-top:10px; display: none;}
 #Mission {background-color: #fafaff;	height: 100%;padding-top:30px;}
 
 
@@ -126,10 +126,11 @@
 
 .txt{
 	background-color : #ddf; 
-	font-size: 14px;
+	font-size: 16px;
 	text-align: center;
-	float: left; height:80%; width: 50px;
-	margin-top:1px;
+	float: left;  width: 50px;
+	height:80%;
+	margin-top:2px;
 	border-style: solid;
 	border-width: 1px;
 	border-color: #059;
@@ -140,14 +141,6 @@
    background-color : #ccf ;
 }
 
-#WpPoi{
-	margin-right:20px; 
-	height:100%; float: left; 
-	width:60px; 
-	padding-top:7px;
-	font-size: 16px;
-	text-align: center;
-	}
 
 .lbl{
 	float: left;
@@ -223,8 +216,10 @@
 	margin-top: 30px;
 	background-color : #f1f1ff ;
 	width:100%;
+	min-height:50px;
 	border-style: none;
 }
+
 
 .linMs {
 	margin-top: 30px;
@@ -242,6 +237,7 @@
 .lookAt{ 
 	float: left;
 	margin-top:5px;
+	margin-right:5px;
 	height:28px;
 	font-size: 16px;
 	background : #f1f1ff ;

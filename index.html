@@ -21,13 +21,13 @@
 
 		<!--Add a script by google -->
 		<!--AIzaSyACXVz5oXNw9IQuvqxcmHNWdc_1Edt45jI-->
-
+		<!==		
 
 		<script async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyCp4BFOpsm0SZU99ls4EAGflJyG-Jbvzh4   
 				&callback=initMap&libraries=geometry,places,elevation"/>
 
-<!==		
+
 		<script	async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg 
 				&callback=initMap&libraries=geometry,places,elevation"/>
@@ -46,21 +46,22 @@
 	</div>
 
 	<div class="panel" id="panelM" >
-		<div id="Mission" class="tabcontent">
+		<div id="Mission" >
 
 			<div class="dropdown">
-					<button onclick="saveBtn()" class="dropbtn">Save</button>
-					<div id="saveDropdown" class="dropdown-content">
-						<a href="javascript:saveFl('xml');">...xml</a>
-						<a href="javascript:saveFl('wp csv');">Litchi waypoint csv</a>
-						<a href="javascript:saveFl('tl csv');">Litchi timeline csv</a>
-					</div>
-					<button onclick="openBtn()" class="dropbtn">Open</button>
+				<button onclick="saveBtn()" class="dropbtn">Save</button>
+				<div id="saveDropdown" class="dropdown-content">
+					<a href="javascript:saveFl('xml');">...xml</a>
+					<a href="javascript:saveFl('wp csv');">Litchi waypoint csv</a>
+					<a href="javascript:saveFl('tl csv');">Litchi timeline csv</a>
+				</div>
+				<button onclick="openBtn()" class="dropbtn">Open</button>
+				<button onclick="clearBtn()" class="dropbtn">Clear All</button>
+				<input type="file" class="form-control" id="fileimport" onchange="openFl()" hidden />
 			</div>
 
-			<input type="file" class="form-control" id="fileimport" onchange="openFl()" hidden />
-	
-	
+
+
 
 
 
@@ -74,165 +75,169 @@
 				<div class="lin" style=" height:50px;" >
 					<input type="checkbox" name="timelineChk" style="float: left; margin-top:5px;margin-right:5px;" value="limit rotarion"/>
 					<label style="float: left; padding-top:5px;">Reduce the cruising speed to reach</label>  
-				<label style="float: left; padding-top:5px;">max rotation speed</label>      
-				<input class="txt" id="tlInpit" style="height:20px; margin-left:10px;margin-right:10px;"  value="30" type="text" onchange="maxRotVal(value)"/>
-				<label style="float: left; padding-top:5px;">deg/sec</label>      
-			</div>
-			<div class="lin" style=" height:30px;" >
-				<input type="checkbox" name="timelineChk" value="??">Smooth start/end</br>      
-			</div>					
-			<div class="lin" style=" height:30px;" >
-				<input type="checkbox" name="timelineChk" value="only smooth">Optimize only smooth edges</br>      
+					<label style="float: left; padding-top:5px;">max rotation speed</label>      
+					<input class="txt" id="tlInpit" style="height:20px; margin-left:10px;margin-right:10px;"  value="30" type="text" onchange="maxRotVal(value)"/>
+					<label style="float: left; padding-top:5px;">deg/sec</label>      
+				</div>
+				<div class="lin" style=" height:30px;" >
+					<input type="checkbox" name="timelineChk" value="??">Smooth start/end</br>      
+				</div>					
+				<div class="lin" style=" height:30px;" >
+					<input type="checkbox" name="timelineChk" value="only smooth">Optimize only smooth edges</br>      
+				</div>		
+			</div>     
+
+
+			<div class="linMs" id="3DCont" style=" bottom: 0px; right: 0px;" >
+				<div class="lin" style=" height:30px;" >
+					<button  class="ttl" style=" height:100%; float: left;"  onclick="map3d()">Rotated Map</button>
+					<input type="checkbox" id="3dPath"   onclick="path3d(id)" checked>3D Path</input>      
+					<input type="checkbox" id="3dHeading"  onclick="path3d(id)">3D Heading</input>      
+
+					<!--<button  class="ttl" style=" height:100%; float: left;"  onclick="path3d()">3D Time Path</button>-->
+				</div>		
 			</div>		
-		</div>     
-
-
-		<div class="linMs" id="3DCont" style=" bottom: 0px; right: 0px;" >
-			<div class="lin" style=" height:30px;" >
-				<button  class="ttl" style=" height:100%; float: left;"  onclick="map3d()">Rotated Map</button>
-				<input type="checkbox" id="3dPath"   onclick="path3d(id)" checked>3D Path</input>      
-				<input type="checkbox" id="3dHeading"  onclick="path3d(id)">3D Heading</input>      
-				
-				<!--<button  class="ttl" style=" height:100%; float: left;"  onclick="path3d()">3D Time Path</button>-->
-			</div>		
-		</div>		
-	</div>
-</div>
-<div id="collapseS">
-
-	<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="deleteWpPoi()"><img src="./css/img/trash-24.png"/></button>
-
-	<button  class="ttl" style=" height:100%; float: left;"  onclick="minusOne()"><img src="./css/img/ArL-24.png"/></button>
-	<input  class="txt" id= "display"  value="" type="text" onchange="displayChange(value)"/>
-	<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="plusOne()"><img src="./css/img/ArR-24.png"/></button>
-
-	<div style ="float: left;margin-right:10px;padding-top:5px;">
-		<input type="radio" id="radioWp" name="mrk" value="waypoints" onchange="radioChange(this)" checked />
-		<label for="radioWp">Waypoints</label>
-		<input type="radio" id="radioPoi" name="mrk" value="poi"  onchange="radioChange(this)" />
-		<label for="radioPoi">POI</label>
+		</div>
 	</div>
 
-	<button  class="ttl" style=" height:100%; float: right;"  onclick="toggleSettings()"><img src="./css/img/Settings-24.png"/></button>
-
-</div>
 
 
-<div class="panel" id="panelS" >
-	<div id="Waypoints" class="tabcontent">
+	<div id="collapseS">
 
-		<div class="lin" style=" height:50px;" >
-			<label class ="lbl"  >Location </label>
-			<label class ="val" style=" margin-right:15px;"  >Latitude <br/> Longitude <br/> Elevation </label>
-			<textarea  class ="valLoc" id="locTxt" readonly >46.1234 -72.1234 </textarea>
-			<!--<input class ="val" id="locationText" name="country" value="46.1234 /n/r -72.1234" readonly>-->
-			<!--<label class ="val" id="locationText" >46.1234 <br/> -72.1234 </label> -->
+		<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="deleteWpPoi()"><img src="./css/img/trash-24.png"/></button>
+
+		<button  class="ttl" style=" height:100%; float: left;"  onclick="minusOne()"><img src="./css/img/ArL-24.png"/></button>
+		<input  class="txt" id= "display"  value="" type="text" onchange="displayChange(value,true)"/>
+		<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="plusOne()"><img src="./css/img/ArR-24.png"/></button>
+
+		<div style ="float: left;margin-right:10px;padding-top:5px;">
+			<input type="radio" id="radioWp" name="mrk" value="waypoints" onchange="radioChange(this)" checked />
+			<label for="radioWp">Waypoints</label>
+			<input type="radio" id="radioPoi" name="mrk" value="poi"  onchange="radioChange(this)" />
+			<label for="radioPoi">POI</label>
 		</div>
 
-		<div class="lin" style=" height:38px;" >
-			<label class ="lbl" >Altitude [m]</label>
-			<input class="txt" id="altInpit" value="25" type="text" onchange="altitudeVal(value)"/>
-			<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
-				<input type="range"  min="1" max="100" value="25" class="slider" id="altSlider" onchange="altitudeVal(value)"/>
+		<button  class="ttl" style=" height:100%; float: right;"  onclick="toggleSettings()"><img src="./css/img/Settings-24.png"/></button>
+
+	</div>
+
+
+	<div class="panel" id="panelS" >
+		<div id="Waypoints" >
+
+			<div class="lin" style=" height:50px;" >
+				<label class ="lbl"  >Location </label>
+				<label class ="val" style=" margin-right:15px;"  >Latitude <br/> Longitude <br/> Elevation </label>
+				<textarea  class ="valLoc" id="locTxt" readonly >46.1234 -72.1234 </textarea>
+				<!--<input class ="val" id="locationText" name="country" value="46.1234 /n/r -72.1234" readonly>-->
+				<!--<label class ="val" id="locationText" >46.1234 <br/> -72.1234 </label> -->
 			</div>
-		</div>
 
-		<div class="lin" style=" height:38px;" >
-			<label class ="lbl" >Speed [m/s]</label>
-			<input class="txt" id="spInpit" value="3.5" type="text" onchange="speedVal(2,value)"/>
-			<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
-				<input type="range"  min="10" max="100" value="35" class="slider" id="spSlider" onchange="speedVal(1,value)"/>
+			<div class="lin" style=" height:38px;" >
+				<label class ="lbl" >Altitude [m]</label>
+				<input class="txt" id="altInpit" value="25" type="text" onchange="altitudeVal(value)"/>
+				<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
+					<input type="range"  min="1" max="100" value="25" class="slider" id="altSlider" onchange="altitudeVal(value)"/>
+				</div>
 			</div>
-		</div>
 
-		<div class="linEn" style=" height:140px;" >
 			<div class="lin" style=" height:38px;" >
-				<label class ="lbl" >Heading </label>
-				<select class="lookAt" id="selLookAt" onchange="selectLookAt(value);">
-					<option value="Free Selection">Free Selection</option>
-				</select>
-			</div>							
-			<fieldset class="linEn" id="enLaser" style=" height:100px;" disabled>
-				<div class="lin" style=" height:38px;" >
-					<label class ="lbl" >Azimuth [deg]</label>
-					<input class="txt" id="yawInpit" value="0" type="text" onchange="azimithVal(value)"/>
-					<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 20px;">
-						<input type="range"  min="-180" max="180" value="0" class="slider" id="yawSlider" onchange="azimithVal(value)"/>
-					</div>
+				<label class ="lbl" >Speed [m/s]</label>
+				<input class="txt" id="spInpit" value="3.5" type="text" onchange="speedVal(2,value)"/>
+				<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
+					<input type="range"  min="10" max="100" value="35" class="slider" id="spSlider" onchange="speedVal(1,value)"/>
 				</div>
+			</div>
 
+			<div class="linEn" style=" height:140px;" >
 				<div class="lin" style=" height:38px;" >
-					<label class ="lbl" >Pitch Angle [deg]</label>
-					<input class="txt" id="pitchInpit" value="0" type="text" onchange="pitchVal(value)"/>
-					<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 20px;">
-						<input type="range"  min="-20" max="90" value="0" class="slider" id="pitchSlider" onchange="pitchVal(value)"/>
+					<label class ="lbl" >Heading </label>
+					<select class="lookAt" id="selLookAt" onchange="selectLookAt(value);">
+						<option value="Free Selection">Free Selection</option>
+					</select>
+				</div>							
+				<fieldset class="linEn" id="enLaser" style=" height:100px;" disabled>
+					<div class="lin" style=" height:38px;" >
+						<label class ="lbl" >Azimuth [deg]</label>
+						<input class="txt" id="yawInpit" value="0" type="text" onchange="azimithVal(value)"/>
+						<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 20px;">
+							<input type="range"  min="-180" max="180" value="0" class="slider" id="yawSlider" onchange="azimithVal(value)"/>
+						</div>
 					</div>
-				</div>
-			</fieldset>
-		</div>
 
-		<div class="linAct"  >
-			<div class="lin" style=" height:38px;" >
-				<label class ="lbl" >Bezier Smoothing</label>
-			</div>	
-			<fieldset class="linEn" id="bzrCont"  >
-				<div class="lin"  style=" height:38px;"  >
-					<input class="txt" id="bzInpit" value=".8" type="text" onchange="bezierVal(2,value)"/>
-					<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
-						<input type="range"  min="0" max="100" value="80" style="width:250px;float:right;" id="bzSlider" onchange="bezierVal(1,value)"/>
+					<div class="lin" style=" height:38px;" >
+						<label class ="lbl" >Pitch Angle [deg]</label>
+						<input class="txt" id="pitchInpit" value="0" type="text" onchange="pitchVal(value)"/>
+						<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 20px;">
+							<input type="range"  min="-20" max="90" value="0" class="slider" id="pitchSlider" onchange="pitchVal(value)"/>
+						</div>
 					</div>
+				</fieldset>
+			</div>
+
+			<div class="linAct"  >
+				<div class="lin" style=" height:38px;" >
+					<label class ="lbl" >Bezier Smoothing</label>
 				</div>	
-			</fieldset>
+				<fieldset class="linEn" id="bzrCont"  >
+					<div class="lin"  style=" height:38px;"  >
+						<input class="txt" id="bzInpit" value=".8" type="text" onchange="bezierVal(2,value)"/>
+						<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
+							<input type="range"  min="0" max="100" value="80" style="width:250px;float:right;" id="bzSlider" onchange="bezierVal(1,value)"/>
+						</div>
+					</div>	
+				</fieldset>
+			</div>	
+
+
+			<div class="linAct" id="actCont"  >
+				<div class="lin"  style=" height:35px;" >
+					<label class ="lbl" >Actions</label>
+					<button  class="ttl" style=" height:100%; float: right;"  onclick="addAction()">Add</button>
+				</div>							
+
+				<div class="lin"  id = "act100" name="0" style=" height:30px;" hidden >
+					<select class="lookAt" id="selLookAt"  onchange="selectAction(this);">
+						<option value="Select">Select</option>
+						<option value="Stay For">Stay For</option>
+						<option value="Take Photo">Take Photo</option>
+						<option value="Start Video">Start Video</option>
+						<option value="Stop Video">Stop Video</option>
+						<option value="Rotate Aircraft">Rotate Aircraft</option>
+						<option value="Tilt Camera">Tilt Camera</option>
+						<option value="Orbit">Orbit</option>
+						<option value="Delete">--Delete--</option>
+						<option value="Insert">--Insert--</option>
+					</select>
+					<input class="txt" id="degInput" value="0" type="text" onchange="readWpActivities()" hidden ></input>
+					<label class="actLabel"  id="degLabel" hidden > deg </label>
+					<input class="txt" id="secInput" value="1" type="text" onchange="readWpActivities()" hidden ></input>
+					<label class="actLabel" id="secLabel" hidden > sec </label>
+					<button  class="ttl" id="btnCCW" style=" height:80%; float: right;"  onclick="rotCCW(this)" hidden >CCW</button>
+				</div>							
+			</div>	
 		</div>	
 
+		<div id="POI" >
 
-		<div class="linAct" id="actCont"  >
-			<div class="lin"  style=" height:35px;" >
-				<label class ="lbl" >Actions</label>
-				<button  class="ttl" style=" height:100%; float: right;"  onclick="addAction()">Add</button>
-			</div>							
+			<div class="lin" style=" height:38px;" >
+				<label class ="lbl" >Location </label>
+				<label class ="val"  >Latitude <br/> Longitude </label>
+				<label class ="val"  >46.1234 <br/> -72.1234 </label>
+			</div>
 
-			<div class="lin"  id = "act100" name="0" style=" height:30px;" hidden >
-				<select class="lookAt" id="selLookAt"  onchange="selectAction(this);">
-					<option value="Select">Select</option>
-					<option value="Stay For">Stay For</option>
-					<option value="Take Photo">Take Photo</option>
-					<option value="Start Video">Start Video</option>
-					<option value="Stop Video">Stop Video</option>
-					<option value="Rotate Aircraft">Rotate Aircraft</option>
-					<option value="Tilt Camera">Tilt Camera</option>
-					<option value="Orbit">Orbit</option>
-					<option value="Delete">--Delete--</option>
-					<option value="Insert">--Insert--</option>
-				</select>
-				<input class="txt" id="degInput" value="0" type="text" onchange="readWpActivities()" hidden ></input>
-				<label class="actLabel"  id="degLabel" hidden > deg </label>
-				<input class="txt" id="secInput" value="1" type="text" onchange="readWpActivities()" hidden ></input>
-				<label class="actLabel" id="secLabel" hidden > sec </label>
-				<button  class="ttl" id="btnCCW" style=" height:80%; float: right;"  onclick="rotCCW(this)" hidden >CCW</button>
-			</div>							
-		</div>	
-	</div>	
-
-	<div id="POI" class="tabcontent">
-
-		<div class="lin" style=" height:38px;" >
-			<label class ="lbl" >Location </label>
-			<label class ="val"  >Latitude <br/> Longitude </label>
-			<label class ="val"  >46.1234 <br/> -72.1234 </label>
+			<div class="lin" style=" height:38px;" >
+				<label class ="lbl" >Altitude [m]</label>
+				<input class="txt" id="altInpit" value="25" type="text" onchange="altitudeVal(value)"/>
+				<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
+					<input type="range"  min="-100" max="100" value="25" class="slider" id="altSlider" onchange="altitudeVal(value)"/>
+				</div>
+			</div>						
 		</div>
 
-		<div class="lin" style=" height:38px;" >
-			<label class ="lbl" >Altitude [m]</label>
-			<input class="txt" id="altInpit" value="25" type="text" onchange="altitudeVal(value)"/>
-			<div class="slidecontainer" style="padding-top:10px; float: right; margin-right: 10px;">
-				<input type="range"  min="-100" max="100" value="25" class="slider" id="altSlider" onchange="altitudeVal(value)"/>
-			</div>
-		</div>									</div>
 
 
-
-</div>
+	</div>
 
 
 </body>

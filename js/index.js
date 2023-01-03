@@ -16,7 +16,7 @@ let tiltRotBtns;
 
 // Initialize and add the map
 function initMap() {
-    const gfg_office = {
+    const pieIIX44 = {
         lat: 46.38464,
         lng: -72.55208,
     };
@@ -24,7 +24,7 @@ function initMap() {
     map = new google.maps.Map(
             document.getElementById("map"), {
             zoom: 17,
-            center: gfg_office,
+            center: pieIIX44,
             zoomControl: true,
             mapTypeControl: true,
             mapTypeId: "terrain",
@@ -375,19 +375,19 @@ function addLatLng(evn) {
             }
         }
         waypoints.push(tw);
-        displayChange(waypoints.length);
+        displayChange(waypoints.length,false);
         redrawPath();
     } else {
         po = new Poi(evn.latLng, pois.length);
         pois.push(po);
-        displayChange(pois.length);
+        displayChange(pois.length,false);
     }
 
 }
 
 function clickWp(wpNm) {
 
-    displayChange(wpNm + 1);
+    displayChange(wpNm + 1,false);
 
     if (radioWp.checked) {
         for (let i = 0; i < waypoints.length; i++) {

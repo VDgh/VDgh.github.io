@@ -35,39 +35,38 @@ function updateSettings(upNmb) {
         bezierVal(2, waypoints[upNmb].smoothing);
 
         selLookAt = document.getElementById("selLookAt");
-		editLookAt();
-        pos = null;altDif=0;
+        editLookAt();
+        pos = null;
+        altDif = 0;
         selLookAt.value = "Free Selection";
         if (upNmb < waypoints.length - 1 && waypoints[upNmb].headingId == waypoints[upNmb + 1].id) {
- 			selLookAt.value = "Next Waypoint";
+            selLookAt.value = "Next Waypoint";
             pos = waypoints[upNmb + 1].position;
-            altDif=waypoints[upNmb].altitude-waypoints[upNmb + 1].altitude;
-		} else if (upNmb > 0 && waypoints[upNmb].headingId == waypoints[upNmb - 1].id) {
+            altDif = waypoints[upNmb].altitude - waypoints[upNmb + 1].altitude;
+        } else if (upNmb > 0 && waypoints[upNmb].headingId == waypoints[upNmb - 1].id) {
             selLookAt.value = "Previous Waypoint";
             pos = waypoints[upNmb - 1].position;
-          altDif=waypoints[upNmb].altitude-waypoints[upNmb - 1].altitude;
-       } else {
-            
-				
-			for (let i = 0; i < pois.length; i++) {
+            altDif = waypoints[upNmb].altitude - waypoints[upNmb - 1].altitude;
+        } else {
+
+            for (let i = 0; i < pois.length; i++) {
                 if (waypoints[upNmb].headingId == pois[i].id) {
                     selLookAt.value = "POI - " + (i + 1);
- 					pos = pois[i].position;
+                    pos = pois[i].position;
                     waypoints[upNmb].markColor = pois[i].markColor;
-					altDif=waypoints[upNmb].altitude-pois[i].altitude;
- 			   }
+                    altDif = waypoints[upNmb].altitude - pois[i].altitude;
+                }
             }
         }
         if (selLookAt.value == "Free Selection") {
             waypoints[upNmb].headingId = 0;
-         }
+        }
 
-        if (pos != null){
+        if (pos != null) {
             waypoints[upNmb].azimuth = positionToAzimuth(waypoints[upNmb].position, pos);
-			dis =distance(waypoints[upNmb].position, pos);
-			waypoints[upNmb].pitchAngle =Math.round(toDegrees(Math.atan2( altDif,dis)));
-		}
-
+            dis = distance(waypoints[upNmb].position, pos);
+            waypoints[upNmb].pitchAngle = Math.round(toDegrees(Math.atan2(altDif, dis)));
+        }
 
         waypoints[upNmb].refreshMarkers();
 
@@ -114,17 +113,17 @@ function plusOne() {
     nmb = parseInt(display.value);
     if (isNaN(nmb))
         nmb = 0;
-    displayChange(nmb + 1);
+    displayChange(nmb + 1, true);
 }
 
 function minusOne() {
     nmb = parseInt(display.value);
     if (isNaN(nmb))
         nmb = 0;
-    displayChange(nmb - 1)
+    displayChange(nmb - 1, true)
 }
 
-function displayChange(nmb) {
+function displayChange(nmb, center) {
 
     var dsp;
     if (isNaN(nmb))
@@ -141,9 +140,10 @@ function displayChange(nmb) {
             }
 
             selWp = dsp - 1;
-			map.setCenter(waypoints[selWp].position);
+            if (center)
+                map.setCenter(waypoints[selWp].position);
 
-		} else {
+        } else {
             dsp = "";
             selWp = -1;
         }
@@ -155,9 +155,10 @@ function displayChange(nmb) {
                 dsp = 1;
             }
             selPoi = dsp - 1;
-			map.setCenter(pois[selPoi].position);
-		   
-		} else {
+            if (center)
+                map.setCenter(pois[selPoi].position);
+
+        } else {
             dsp = "";
             selPoi = -1;
         }
@@ -364,35 +365,37 @@ function selectLookAt(el) {
 
     waypoints[selWp].headingId = 0;
 
-    pos = null; altDif=0;
+    pos = null;
+    altDif = 0;
     if (el.includes('POI - ')) {
         po = parseInt(el.replace("POI - ", ""));
 
         waypoints[selWp].headingId = pois[po - 1].id;
         waypoints[selWp].markColor = pois[po - 1].markColor;
         pos = pois[po - 1].position;
-        altDif=waypoints[selWp].altitude-pois[po - 1].altitude;
-	}
+        altDif = waypoints[selWp].altitude - pois[po - 1].altitude;
+    }
     if (el.includes('Next')) {
         waypoints[selWp].headingId = waypoints[selWp + 1].id;
         waypoints[selWp].markColor = markerColor;
         pos = waypoints[selWp + 1].position;
-        altDif=waypoints[selWp].altitude-waypoints[selWp + 1].altitude;
- }
+        altDif = waypoints[selWp].altitude - waypoints[selWp + 1].altitude;
+    }
     if (el.includes('Previous')) {
         waypoints[selWp].headingId = waypoints[selWp - 1].id;
         waypoints[selWp].markColor = markerColor;
         pos = waypoints[selWp - 1].position;
-        altDif=waypoints[selWp].altitude-waypoints[selWp - 1].altitude;
-	}
+        altDif = waypoints[selWp].altitude - waypoints[selWp - 1].altitude;
+    }
 
-    if (pos != null){
+    if (pos != null) {
         waypoints[selWp].azimuth = positionToAzimuth(waypoints[selWp].position, pos);
-		dis =distance(waypoints[selWp].position, pos);
-		waypoints[selWp].pitchAngle =Math.round(toDegrees(Math.atan2( altDif,dis)));
-	}else{
-        waypoints[selWp].azimuth = 0;waypoints[selWp].pitchAngle=0;
-	}
+        dis = distance(waypoints[selWp].position, pos);
+        waypoints[selWp].pitchAngle = Math.round(toDegrees(Math.atan2(altDif, dis)));
+    } else {
+        waypoints[selWp].azimuth = 0;
+        waypoints[selWp].pitchAngle = 0;
+    }
     waypoints[selWp].refreshMarkers();
     azimithVal(waypoints[selWp].azimuth);
     pitchVal(waypoints[selWp].azimuth);
@@ -496,13 +499,15 @@ function altitudeVal(vl) {
 }
 
 function radioChange(src) {
+
     if (radioWp.checked) {
         poi.style.display = "none";
         wp.style.display = "block";
+
     } else {
-        wp.style.display = "none";
         poi.style.display = "block";
-    }
+        wp.style.display = "none";
+     }
 
 }
 //============================================================================================
@@ -511,7 +516,7 @@ function radioChange(src) {
 function saveBtn() {
     document.getElementById("saveDropdown").classList.toggle("show");
 }
-
+imp;
 function openBtn() {
     imp = document.getElementById("fileimport");
     imp.hidden = !imp.hidden;
@@ -593,7 +598,7 @@ function saveFl(type) {
 
         }
     } else if (type.includes("tl csv")) {
-		flNm = "tl.csv";
+        flNm = "tl.csv";
         txType = "text/csv;charset=utf-8;";
         var tb = ",";
         var hd = "latitude" + tb + "longitude" + tb + "altitude(m)" + tb + "heading(deg)" + tb;
@@ -632,20 +637,22 @@ function saveFl(type) {
 
 function openFl(type) {
 
+    clearBtn();
+
     var fl = $("#fileimport").get(0).files[0];
 
     if (/\.xml$/i.test(fl.name)) {
         var reader = new FileReader();
-        reader.readAsText(fl);
+        reader.readAsText(fl); //.readAsDataURL(fl);
         reader.onload = function () {
             var xmlDoc = new DOMParser().parseFromString(reader.result, "text/xml");
 
             w = xmlDoc.getElementsByTagName("Waypoint");
             for (let i = 0; i < w.length; i++) {
-                wp = new Waypoint(null, i);
-                wp.setFromXml(w[i]);
-                //wp.refreshMarkers();
-                waypoints.push(wp);
+                wpt = new Waypoint(null, i);
+                wpt.setFromXml(w[i]);
+                //wpt.refreshMarkers();
+                waypoints.push(wpt);
             }
 
             p = xmlDoc.getElementsByTagName("POI");
@@ -656,26 +663,33 @@ function openFl(type) {
                 pois.push(po);
             }
 
+
             for (let i = 0; i < waypoints.length; i++) {
                 for (let j = 0; j < waypoints.length; j++) {
                     if (waypoints[i].headingId == waypoints[j].id) {
                         waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[j].position);
-                        dis =distance(waypoints[i].position, waypoints[j].position);
-						waypoints[i].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[i].altitude-waypoints[j].altitude),dis)));
-						waypoints[i].refreshMarkers();
+                        dis = distance(waypoints[i].position, waypoints[j].position);
+                        waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[j].altitude), dis)));
+                        waypoints[i].refreshMarkers();
                     }
                 }
                 for (let j = 0; j < pois.length; j++) {
                     if (waypoints[i].headingId == pois[j].id) {
                         waypoints[i].markColor = pois[j].markColor;
                         waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[j].position);
-                        dis =distance(waypoints[i].position, pois[j].position);
-						waypoints[i].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[i].altitude-pois[j].altitude),dis)));
-						waypoints[i].refreshMarkers();
+                        dis = distance(waypoints[i].position, pois[j].position);
+                        waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - pois[j].altitude), dis)));
+                        waypoints[i].refreshMarkers();
                     }
                 }
             }
+
             redrawPath();
+            if (waypoints.length > 0) {
+                display.value = waypoints.length;
+                radioWp.checked = true;
+                radioChange();
+            }
         }
     } else if (/\.csv$/i.test(fl.name)) {
         var reader = new FileReader();
@@ -694,6 +708,22 @@ function openFl(type) {
 
 function path3d(val) {
     redraw3D();
+}
+
+function clearBtn() {
+
+    for (let i = 0; i < waypoints.length; i++) {
+        waypoints[i].deleteWp();
+    }
+    waypoints = [];
+
+    for (let i = 0; i < pois.length; i++) {
+        pois[i].deletePoi();
+    }
+    pois = [];
+
+    redrawPath();
+    display.value = "";
 }
 
 function map3d() {

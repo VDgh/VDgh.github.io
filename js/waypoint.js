@@ -23,7 +23,7 @@ class Waypoint {
         if (latLng != null) {
             this.position = new google.maps.LatLng(latLng.lat(), latLng.lng());
         }
-        this.index = ix;
+ 		this.index = ix;
         this.id = Math.floor(Math.random() * 1000000);
         this.bzPoly = new google.maps.Polyline({
             strokeColor: "#aaff00",
@@ -317,7 +317,7 @@ class Waypoint {
             this.listActivities.push(siAc);
         }
         this.refreshMarkers();
-    }
+ 	}
 
     getCsv = function (tb, pos) {
 
