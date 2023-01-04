@@ -360,9 +360,9 @@ function addLatLng(evn) {
             if (waypoints[waypoints.length - 1].headingId == 0 && waypoints[waypoints.length - 1].azimuth == 0) {
                 waypoints[waypoints.length - 1].headingId = tw.id;
                 waypoints[waypoints.length - 1].azimuth = positionToAzimuth(waypoints[waypoints.length - 1].position, tw.position);
-                dis =distance(waypoints[waypoints.length - 1].position, tw.position);
-				waypoints[waypoints.length - 1].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[waypoints.length - 1].altitude-tw.altitude),dis)));
-				waypoints[waypoints.length - 1].refreshMarkers();
+                dis = distance(waypoints[waypoints.length - 1].position, tw.position);
+                waypoints[waypoints.length - 1].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[waypoints.length - 1].altitude - tw.altitude), dis)));
+                waypoints[waypoints.length - 1].refreshMarkers();
             } else if (waypoints[waypoints.length - 1].headingId != 0)
                 tw.headingId = waypoints[waypoints.length - 1].headingId;
             else if (waypoints[waypoints.length - 1].azimuth != 0)
@@ -375,19 +375,19 @@ function addLatLng(evn) {
             }
         }
         waypoints.push(tw);
-        displayChange(waypoints.length,false);
+        displayChange(waypoints.length, false);
         redrawPath();
     } else {
         po = new Poi(evn.latLng, pois.length);
         pois.push(po);
-        displayChange(pois.length,false);
+        displayChange(pois.length, false);
     }
 
 }
 
 function clickWp(wpNm) {
 
-    displayChange(wpNm + 1,false);
+    displayChange(wpNm + 1, false);
 
     if (radioWp.checked) {
         for (let i = 0; i < waypoints.length; i++) {
@@ -429,15 +429,15 @@ function dragWp(wpNm, stat) {
                 path.push(waypoints[i].position);
                 if (waypoints[wpNm].headingId == waypoints[i].id) {
                     waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, waypoints[i].position);
-                    dis =distance(waypoints[wpNm].position, waypoints[i].position);
-					waypoints[wpNm].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[wpNm].altitude-waypoints[i].altitude),dis)));
+                    dis = distance(waypoints[wpNm].position, waypoints[i].position);
+                    waypoints[wpNm].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[wpNm].altitude - waypoints[i].altitude), dis)));
 
-				}
+                }
                 if (waypoints[i].headingId == waypoints[wpNm].id) {
                     waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[wpNm].position);
-                    dis =distance(waypoints[i].position, waypoints[wpNm].position);
-					waypoints[i].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[i].altitude-waypoints[wpNm].altitude),dis)));
-					waypoints[i].refreshMarkers();
+                    dis = distance(waypoints[i].position, waypoints[wpNm].position);
+                    waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[wpNm].altitude), dis)));
+                    waypoints[i].refreshMarkers();
                 }
             }
             poly.setPath(path);
@@ -446,9 +446,9 @@ function dragWp(wpNm, stat) {
                 if (waypoints[wpNm].headingId == pois[i].id) {
                     waypoints[wpNm].markColor = pois[i].markColor;
                     waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, pois[i].position);
-                	dis =distance(waypoints[wpNm].position, pois[i].position);
-					waypoints[wpNm].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[wpNm].altitude-pois[i].altitude),dis)));
-				}
+                    dis = distance(waypoints[wpNm].position, pois[i].position);
+                    waypoints[wpNm].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[wpNm].altitude - pois[i].altitude), dis)));
+                }
             }
             waypoints[wpNm].refreshMarkers();
 
@@ -467,206 +467,218 @@ function dragWp(wpNm, stat) {
                 wpMid[wpNm].setPosition(pos);
             }
 
-        } else {}
-
-    }
-
-    if (stat == 3) {
-        //   redrawPath();
-    }
-}
-
-function dragMd(mdNm, stat) {
-
-    if (stat < 3) {
-
-        insrPoly.setMap(null);
-        path = [];
-
-        path.push(waypoints[mdNm].position);
-        path.push(wpMid[mdNm].getPosition());
-        path.push(waypoints[mdNm + 1].position);
-
-        insrPoly.setPath(path);
-        insrPoly.setMap(map);
-
-    } else {
-
-        waypoints.splice(mdNm + 1, 0, new Waypoint(wpMid[mdNm].getPosition(), mdNm + 1));
-        insrPoly.setMap(null);
-        redrawPath();
-        for (let i = 0; i < waypoints.length; i++) {
-            waypoints[i].index = i;
-            waypoints[i].refreshMarkers();
-        }
-
-        for (let i = 0; i < waypoints.length - 1; i++) {
-            waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[i + 1].position);
-			dis =distance(waypoints[i].position, waypoints[i+1].position);
-			waypoints[i].pitchAngle =Math.round(toDegrees(Math.atan2( (waypoints[i].altitude-waypoints[i+1].altitude),dis)));
-			
-			waypoints[i].refreshMarkers();
-        }
-
-    }
-}
-
-function redrawPath() {
-
-    path = [];
-    for (let i = 0; i < waypoints.length; i++) {
-        path.push(waypoints[i].position);
-        waypoints[i].refreshMarkers;
-    }
-
-    poly.setPath(path)
-
-    for (let i = 1; i < waypoints.length - 1; i++) {
-        pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);
-    }
-
-    for (let i = 0; i < wpMid.length; i++) {
-        google.maps.event.clearInstanceListeners(wpMid[i]);
-        wpMid[i].setMap(null);
-    }
-    wpMid = [];
-    for (let i = 1; i < waypoints.length; i++) {
-        dis = parseInt(distance(waypoints[i - 1].position, waypoints[i].position), 10);
-        pt = " M -5,3 5,3 5,-3 -5,-3  z ";
-        if (dis > 10) {
-            pt = " M -6,3 6,3 6,-3 -6,-3  z ";
-        }
-        if (dis > 100) {
-            pt = " M -7,3 7,3 7,-3 -7,-3  z ";
-        }
-        if (dis > 1000) {
-            pt = " M -8,3 8,3 8,-3 -8,-3  z ";
-        }
-        const lbl = {
-            path: pt,
-            fillColor: "#300",
-            fillOpacity: 1.0,
-            strokeWeight: 1,
-            strokeColor: "#100",
-            rotation: 0,
-            scale: 3,
-            anchor: new google.maps.Point(0, 0),
-        };
-
-        const md = new google.maps.Marker({
-            position: middle(waypoints[i - 1].position, waypoints[i].position),
-            icon: lbl,
-            label: {
-                text: dis.toString() + " m",
-                color: '#fc0',
-                fontSize: "10px"
-            },
-
-            map: map,
-            draggable: true,
-        });
-
-        wpMid.push(md);
-        md.addListener("dragstart", () => {
-            dragMd(wpMid.indexOf(md), 1);
-        });
-
-        md.addListener("drag", () => {
-            dragMd(wpMid.indexOf(md), 2);
-        });
-
-        md.addListener("dragend", () => {
-            dragMd(wpMid.indexOf(md), 3);
-        });
-    }
-
-}
-
-//==============================================================
-
-var latlng;
-function addYourLocationButton(map) {
-    var controlDiv = document.createElement('div');
-
-    var firstChild = document.createElement('button');
-    firstChild.style.backgroundColor = '#fff';
-    firstChild.style.border = 'none';
-    firstChild.style.outline = 'none';
-    firstChild.style.width = '28px';
-    firstChild.style.height = '28px';
-    firstChild.style.borderRadius = '2px';
-    firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
-    firstChild.style.cursor = 'pointer';
-    firstChild.style.marginRight = '10px';
-    firstChild.style.padding = '0px';
-    firstChild.title = 'Your Location';
-    controlDiv.appendChild(firstChild);
-
-    var secondChild = document.createElement('div');
-    secondChild.style.margin = '5px';
-    secondChild.style.width = '18px';
-    secondChild.style.height = '18px';
-    secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-1x.png)';
-    secondChild.style.backgroundSize = '180px 18px';
-    secondChild.style.backgroundPosition = '0px 0px';
-    secondChild.style.backgroundRepeat = 'no-repeat';
-    secondChild.id = 'you_location_img';
-    firstChild.appendChild(secondChild);
-
-    google.maps.event.addListener(map, 'dragend', function () {
-        $('#you_location_img').css('background-position', '0px 0px');
-    });
-
-    firstChild.addEventListener('click', function () {
-
-        if (latlng != undefined) {
-            map.setCenter(latlng);
-            return;
-        }
-
-        var imgX = '0';
-        var animationInterval = setInterval(function () {
-            if (imgX == '-18')
-                imgX = '0';
-            else
-                imgX = '-18';
-            $('#you_location_img').css('background-position', imgX + 'px 0px');
-        }, 500);
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                map.setCenter(latlng);
-                clearInterval(animationInterval);
-                $('#you_location_img').css('background-position', '-144px 0px');
-            });
         } else {
-            clearInterval(animationInterval);
-            $('#you_location_img').css('background-position', '0px 0px');
+
+            pois[wpNm].position = pois[wpNm].marker.getPosition();
+            for (let i = 0; i < waypoints.length; i++) {
+                if (waypoints[i].headingId == pois[wpNm].id) {
+                    waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[wpNm].position);
+                        dis = distance(waypoints[i].position, pois[wpNm].position);
+                        waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - pois[wpNm].altitude), dis)));
+					}
+                }
+            }
+			pois[wpNm].refreshMarkers();
         }
-    });
 
-    controlDiv.index = 1;
-    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
-}
+        if (stat == 3) {
+            //   redrawPath();
+        }
 
-//=============================================================
+    }
+
+    function dragMd(mdNm, stat) {
+
+        if (stat < 3) {
+
+            insrPoly.setMap(null);
+            path = [];
+
+            path.push(waypoints[mdNm].position);
+            path.push(wpMid[mdNm].getPosition());
+            path.push(waypoints[mdNm + 1].position);
+
+            insrPoly.setPath(path);
+            insrPoly.setMap(map);
+
+        } else {
+
+            waypoints.splice(mdNm + 1, 0, new Waypoint(wpMid[mdNm].getPosition(), mdNm + 1));
+            insrPoly.setMap(null);
+            redrawPath();
+            for (let i = 0; i < waypoints.length; i++) {
+                waypoints[i].index = i;
+                waypoints[i].refreshMarkers();
+            }
+
+            for (let i = 0; i < waypoints.length - 1; i++) {
+                waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[i + 1].position);
+                dis = distance(waypoints[i].position, waypoints[i + 1].position);
+                waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[i + 1].altitude), dis)));
+
+                waypoints[i].refreshMarkers();
+            }
+
+        }
+
+    }
+
+    function redrawPath() {
+
+        path = [];
+        for (let i = 0; i < waypoints.length; i++) {
+            path.push(waypoints[i].position);
+            waypoints[i].refreshMarkers;
+        }
+
+        poly.setPath(path)
+
+        for (let i = 1; i < waypoints.length - 1; i++) {
+            pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);
+        }
+
+        for (let i = 0; i < wpMid.length; i++) {
+            google.maps.event.clearInstanceListeners(wpMid[i]);
+            wpMid[i].setMap(null);
+        }
+        wpMid = [];
+        for (let i = 1; i < waypoints.length; i++) {
+            dis = parseInt(distance(waypoints[i - 1].position, waypoints[i].position), 10);
+            pt = " M -5,3 5,3 5,-3 -5,-3  z ";
+            if (dis > 10) {
+                pt = " M -6,3 6,3 6,-3 -6,-3  z ";
+            }
+            if (dis > 100) {
+                pt = " M -7,3 7,3 7,-3 -7,-3  z ";
+            }
+            if (dis > 1000) {
+                pt = " M -8,3 8,3 8,-3 -8,-3  z ";
+            }
+            const lbl = {
+                path: pt,
+                fillColor: "#300",
+                fillOpacity: 1.0,
+                strokeWeight: 1,
+                strokeColor: "#100",
+                rotation: 0,
+                scale: 3,
+                anchor: new google.maps.Point(0, 0),
+            };
+
+            const md = new google.maps.Marker({
+                position: middle(waypoints[i - 1].position, waypoints[i].position),
+                icon: lbl,
+                label: {
+                    text: dis.toString() + " m",
+                    color: '#fc0',
+                    fontSize: "10px"
+                },
+
+                map: map,
+                draggable: true,
+            });
+
+            wpMid.push(md);
+            md.addListener("dragstart", () => {
+                dragMd(wpMid.indexOf(md), 1);
+            });
+
+            md.addListener("drag", () => {
+                dragMd(wpMid.indexOf(md), 2);
+            });
+
+            md.addListener("dragend", () => {
+                dragMd(wpMid.indexOf(md), 3);
+            });
+        }
+
+    }
+
+    //==============================================================
+
+    var latlng;
+    function addYourLocationButton(map) {
+        var controlDiv = document.createElement('div');
+
+        var firstChild = document.createElement('button');
+        firstChild.style.backgroundColor = '#fff';
+        firstChild.style.border = 'none';
+        firstChild.style.outline = 'none';
+        firstChild.style.width = '28px';
+        firstChild.style.height = '28px';
+        firstChild.style.borderRadius = '2px';
+        firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+        firstChild.style.cursor = 'pointer';
+        firstChild.style.marginRight = '10px';
+        firstChild.style.padding = '0px';
+        firstChild.title = 'Your Location';
+        controlDiv.appendChild(firstChild);
+
+        var secondChild = document.createElement('div');
+        secondChild.style.margin = '5px';
+        secondChild.style.width = '18px';
+        secondChild.style.height = '18px';
+        secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-1x.png)';
+        secondChild.style.backgroundSize = '180px 18px';
+        secondChild.style.backgroundPosition = '0px 0px';
+        secondChild.style.backgroundRepeat = 'no-repeat';
+        secondChild.id = 'you_location_img';
+        firstChild.appendChild(secondChild);
+
+        google.maps.event.addListener(map, 'dragend', function () {
+            $('#you_location_img').css('background-position', '0px 0px');
+        });
+
+        firstChild.addEventListener('click', function () {
+
+            if (latlng != undefined) {
+                map.setCenter(latlng);
+                return;
+            }
+
+            var imgX = '0';
+            var animationInterval = setInterval(function () {
+                if (imgX == '-18')
+                    imgX = '0';
+                else
+                    imgX = '-18';
+                $('#you_location_img').css('background-position', imgX + 'px 0px');
+            }, 500);
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    map.setCenter(latlng);
+                    clearInterval(animationInterval);
+                    $('#you_location_img').css('background-position', '-144px 0px');
+                });
+            } else {
+                clearInterval(animationInterval);
+                $('#you_location_img').css('background-position', '0px 0px');
+            }
+        });
+
+        controlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
+    }
+
+    //=============================================================
 
 
-//***********************************************
-//***********************************************
-//***********************************************
+    //***********************************************
+    //***********************************************
+    //***********************************************
 
 
-function middle(vx1, vx2) {
+    function middle(vx1, vx2) {
 
-    var lat = (vx1.lat() + vx2.lat()) / 2;
+        var lat = (vx1.lat() + vx2.lat()) / 2;
 
-    var lng = (vx1.lng() + vx2.lng()) / 2;
-    vx = new google.maps.LatLng(lat, lng);
+        var lng = (vx1.lng() + vx2.lng()) / 2;
+        vx = new google.maps.LatLng(lat, lng);
 
-    return vx;
-}
+        return vx;
+    }
 
-function pixelDistance(vx1, vx2, $zoom) {
-    return distance(vx1, vx2) * pxPerKm21 >> (21 - $zoom);
-}
+    function pixelDistance(vx1, vx2, $zoom) {
+        return distance(vx1, vx2) * pxPerKm21 >> (21 - $zoom);
+    }

@@ -57,7 +57,7 @@ class Waypoint {
 
         this.altMarker = new google.maps.Marker({
             position: this.position,
-            title: "#",
+            title: "",
             icon: altIcon,
             label: {
                 text: (this.altitude).toString(),
@@ -109,7 +109,7 @@ class Waypoint {
 
         this.marker = new google.maps.Marker({
             position: this.position,
-            title: "#",
+            title: "",
             icon: droneIcon,
             map: map,
             volatilit: true,

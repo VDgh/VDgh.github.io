@@ -106,7 +106,11 @@ function updateSettings(upNmb) {
 
         }
 
-    } else {}
+    } else {
+		
+	    locationText.value = pois[upNmb].position.lat() + "\n" + pois[upNmb].position.lng() + "\n" + pois[upNmb].elevation;
+		altitudeValP(pois[upNmb].altitude);
+	}
 }
 
 function plusOne() {
@@ -478,6 +482,7 @@ function speedVal(src, vl) {
 
 function altitudeVal(vl) {
 
+
     sl = document.getElementById("altSlider");
     inp = document.getElementById("altInpit");
     vll = parseInt(vl);
@@ -490,12 +495,30 @@ function altitudeVal(vl) {
     sl.value = vll;
     inp.value = vll;
 
-    if (radioWp.checked) {
-        waypoints[selWp].altitude = vll;
-    } else {
-        pois[selPoi].altitude = vll;
-    }
+    waypoints[selWp].altitude = vll;
+	updateSettings(selWp);
+	waypoints[selWp].refreshMarkers();
+	
+}
 
+
+function altitudeValP(vl) {
+
+
+    sl = document.getElementById("altSliderP");
+    inp = document.getElementById("altInpitP");
+    vll = parseInt(vl);
+    mn = parseInt(sl.min);
+    mx = parseInt(sl.max);
+    if (vll < mn)
+        vll = mn;
+    if (vll > mx)
+        vll = mx;
+    sl.value = vll;
+    inp.value = vll;
+
+    pois[selPoi].altitude = vll;
+	pois[selPoi].refreshMarkers();
 }
 
 function radioChange(src) {
