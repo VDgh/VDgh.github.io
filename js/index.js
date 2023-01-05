@@ -16,7 +16,7 @@ let tiltRotBtns;
 
 // Initialize and add the map
 function initMap() {
-    const gfg_office = {
+    const pieIIX44 = {
         lat: 46.38464,
         lng: -72.55208,
     };
@@ -24,7 +24,7 @@ function initMap() {
     map = new google.maps.Map(
             document.getElementById("map"), {
             zoom: 17,
-            center: gfg_office,
+            center: pieIIX44,
             zoomControl: true,
             mapTypeControl: true,
             mapTypeId: "terrain",
@@ -119,7 +119,6 @@ function polyM() {
 
 }
 //=======================================================================
-
 function timeLine() {
 
     totalPoly = [];
@@ -127,58 +126,98 @@ function timeLine() {
     totalAltitude = [];
     totalAzimuth = [];
     totalPitch = [];
+
+    sgmPoly = [];
+    sgmSpeed = [];
+    sgmAltitude = [];
+    sgmAzimuth = [];
+    sgmPitch = [];
+
     steps = 10;
+
     for (i = 0; i < waypoints.length; i++) {
-        if (waypoints[i].smoothing == 0 || i == 0 || i == waypoints.length - 1) {
-            totalPoly.push(waypoints[i].position);
-            totalSpeed.push(waypoints[i].speed);
-            totalAltitude.push(waypoints[i].altitude);
-            totalAzimuth.push(waypoints[i].azimuth);
-            totalPitch.push(waypoints[i].pitchAngle);
+        if (waypoints[i].smoothing == 0 || sgmPoly.length == 0 || i == waypoints.length - 1) {
+
+            sgmPoly.push(waypoints[i].position);
+            sgmSpeed.push(waypoints[i].speed);
+            sgmAltitude.push(waypoints[i].altitude);
+            sgmAzimuth.push(waypoints[i].azimuth);
+            sgmPitch.push(waypoints[i].pitchAngle);
+            if ((waypoints[i].smoothing == 0 && sgmPoly.length > 1) || i == waypoints.length - 1) {
+
+                totalPoly.push(sgmPoly);
+                totalSpeed.push(sgmSpeed);
+                totalAltitude.push(sgmAltitude);
+                totalAzimuth.push(sgmAzimuth);
+                totalPitch.push(sgmPitch);
+                sgmPoly = [];
+                sgmSpeed = [];
+                sgmAltitude = [];
+                sgmAzimuth = [];
+                sgmPitch = [];
+                sgmPoly.push(waypoints[i].position);
+                sgmSpeed.push(waypoints[i].speed);
+                sgmAltitude.push(waypoints[i].altitude);
+                sgmAzimuth.push(waypoints[i].azimuth);
+                sgmPitch.push(waypoints[i].pitchAngle);
+
+            }
+
         } else {
             pntPoly = waypoints[i].bezierPath(false, steps, waypoints[i - 1], waypoints[i + 1]);
             pntSpeed = bezierCurve2(pntPoly.length, waypoints[i - 1].speed, waypoints[i].speed);
 
             for (j = 0; j < pntPoly.length; j++) {
-                totalPoly.push(pntPoly[j]);
-                totalSpeed.push(pntSpeed[j]);
-                totalAltitude.push(waypoints[i].bezierAltitude[j]);
-                totalAzimuth.push(waypoints[i].bezierAzimuth[j]);
-                totalPitch.push(waypoints[i].bezierPitchAngle[j]);
+                sgmPoly.push(pntPoly[j]);
+                sgmSpeed.push(pntSpeed[j]);
+                sgmAltitude.push(waypoints[i].bezierAltitude[j]);
+                sgmAzimuth.push(waypoints[i].bezierAzimuth[j]);
+                sgmPitch.push(waypoints[i].bezierPitchAngle[j]);
             }
         }
+
     }
-    totalPoly.push(waypoints[waypoints.length - 1].position);
-    totalSpeed.push(waypoints[waypoints.length - 1].speed);
-    totalAltitude.push(waypoints[waypoints.length - 1].altitude);
-    totalAzimuth.push(waypoints[waypoints.length - 1].azimuth);
-    totalPitch.push(waypoints[waypoints.length - 1].pitchAngle);
 
     //alert( totalPoly.length);
 
     stepSec = 1;
-    tl = timeline(stepSec, totalPoly, totalSpeed);
 
-    //path=[];
     tmLn = [];
-    for (i = 0; i < tl.length; i++) {
-        wpIx = Math.floor(tl[i]);
-        rh = tl[i] - wpIx;
-        la = (1 - rh) * totalPoly[wpIx].lat() + rh * totalPoly[wpIx + 1].lat();
-        lo = (1 - rh) * totalPoly[wpIx].lng() + rh * totalPoly[wpIx + 1].lng();
-        tm = new TimePoint(new google.maps.LatLng(la, lo), i);
-        tm.speed = (1 - rh) * totalSpeed[wpIx] + rh * totalSpeed[wpIx + 1];
-        tm.altitude = (1 - rh) * totalAltitude[wpIx] + rh * totalAltitude[wpIx + 1];
-        tm.azimuth = angleRatio(totalAzimuth[wpIx], totalAzimuth[wpIx + 1], rh); //(1-rh)*totalAzimuth[wpIx]+rh*totalAzimuth[wpIx+1];
-        tm.pitchAngle = (1 - rh) * totalPitch[wpIx] + rh * totalPitch[wpIx + 1];
+    secBg = 0;
+    //path=[];
+    for (i = 0; i < totalPoly.length; i++) {
+        tl = timeline(stepSec, totalPoly[i], totalSpeed[i]);
+        for (j = secBg; j <= tl.length; j++) {
+            if (j < tl.length) {
+                wpIx = Math.floor(tl[j]);
+                rh = tl[j] - wpIx;
+            } else {
+                wpIx = Math.floor(tl[j - 1]);
+                rh = 1;
+            }
+            la = (1 - rh) * totalPoly[i][wpIx].lat() + rh * totalPoly[i][wpIx + 1].lat();
+            lo = (1 - rh) * totalPoly[i][wpIx].lng() + rh * totalPoly[i][wpIx + 1].lng();
+            tm = new TimePoint(new google.maps.LatLng(la, lo), tmLn.length);
+            tm.speed = (1 - rh) * totalSpeed[i][wpIx] + rh * totalSpeed[i][wpIx + 1];
+            tm.altitude = (1 - rh) * totalAltitude[i][wpIx] + rh * totalAltitude[i][wpIx + 1];
+            tm.azimuth = angleRatio(totalAzimuth[i][wpIx], totalAzimuth[i][wpIx + 1], rh); //(1-rh)*totalAzimuth[wpIx]+rh*totalAzimuth[wpIx+1];
+            tm.pitchAngle = (1 - rh) * totalPitch[i][wpIx] + rh * totalPitch[i][wpIx + 1];
+            tmLn.push(tm);
 
-        tmLn.push(tm);
-
-        //path.push(new google.maps.LatLng(la,lo));
+            for (k = 0; k < waypoints.length; k++) {
+                if (waypoints[k].position.lat() == tmLn[tmLn.length - 1].position.lat()) {
+                    if (waypoints[k].position.lng() == tmLn[tmLn.length - 1].position.lng()) {
+                        tmLn[tmLn.length - 1].listActivities = waypoints[k].listActivities;
+                    }
+                }
+            }
+            //path.push(new google.maps.LatLng(la,lo));
+        }
+        secBg = 1;
     }
+    tmLn[0].listActivities = waypoints[0].listActivities;
 
     //tlPoly.setPath(path);
-    //alert(tmLn.length);
     redraw3D();
 }
 
@@ -285,8 +324,8 @@ function redraw3D() {
 }
 
 function slowDown(evn) {
-    e=evn;
-	del = setTimeout(slowClick, 500);
+    e = evn;
+    del = setTimeout(slowClick, 500);
     reliefElevation = -1000;
     elevator.getElevationForLocations({
         locations: [evn.latLng],
@@ -315,20 +354,40 @@ function addLatLng(evn) {
     if (radioWp.checked) {
         tw = new Waypoint(evn.latLng, waypoints.length);
         tw.elevation = Math.round(reliefElevation);
+        if (waypoints.length > 0) {
+            tw.speed = waypoints[waypoints.length - 1].speed;
+            tw.altitude = waypoints[waypoints.length - 1].altitude;
+            if (waypoints[waypoints.length - 1].headingId == 0 && waypoints[waypoints.length - 1].azimuth == 0) {
+                waypoints[waypoints.length - 1].headingId = tw.id;
+                waypoints[waypoints.length - 1].azimuth = positionToAzimuth(waypoints[waypoints.length - 1].position, tw.position);
+                dis = distance(waypoints[waypoints.length - 1].position, tw.position);
+                waypoints[waypoints.length - 1].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[waypoints.length - 1].altitude - tw.altitude), dis)));
+                waypoints[waypoints.length - 1].refreshMarkers();
+            } else if (waypoints[waypoints.length - 1].headingId != 0)
+                tw.headingId = waypoints[waypoints.length - 1].headingId;
+            else if (waypoints[waypoints.length - 1].azimuth != 0)
+                tw.azimuth = waypoints[waypoints.length - 1].azimuth;
+
+            if (waypoints.length > 1 &&
+                waypoints[waypoints.length - 1].listActivities.length == 0 &&
+                waypoints[waypoints.length - 1].smoothing == 0) {
+                waypoints[waypoints.length - 1].smoothing = defSmoothing;
+            }
+        }
         waypoints.push(tw);
-        displayChange(waypoints.length);
+        displayChange(waypoints.length, false);
         redrawPath();
     } else {
         po = new Poi(evn.latLng, pois.length);
         pois.push(po);
-        displayChange(pois.length);
+        displayChange(pois.length, false);
     }
 
 }
 
 function clickWp(wpNm) {
 
-    displayChange(wpNm + 1);
+    displayChange(wpNm + 1, false);
 
     if (radioWp.checked) {
         for (let i = 0; i < waypoints.length; i++) {
@@ -362,56 +421,74 @@ function dragWp(wpNm, stat) {
 
     if (stat == 2) {
 
-        if (radioWp.checked) {
+        path = [];
+        waypoints[wpNm].position = waypoints[wpNm].marker.getPosition();
+        for (let i = 0; i < waypoints.length; i++) {
+            path.push(waypoints[i].position);
+            if (waypoints[wpNm].headingId == waypoints[i].id) {
+                waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, waypoints[i].position);
+                dis = distance(waypoints[wpNm].position, waypoints[i].position);
+                waypoints[wpNm].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[wpNm].altitude - waypoints[i].altitude), dis)));
 
-            path = [];
-            waypoints[wpNm].position = waypoints[wpNm].marker.getPosition();
-            for (let i = 0; i < waypoints.length; i++) {
-                path.push(waypoints[i].position);
-                if (waypoints[wpNm].headingId == waypoints[i].id) {
-                    waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, waypoints[i].position);
-                }
-                if (waypoints[i].headingId == waypoints[wpNm].id) {
-                    waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[wpNm].position);
-                    waypoints[i].refreshMarkers();
-                }
             }
-            poly.setPath(path);
-
-            for (let i = 0; i < pois.length; i++) {
-                if (waypoints[wpNm].headingId == pois[i].id) {
-                    waypoints[wpNm].markColor = pois[i].markColor;
-                    waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, pois[i].position);
-                }
+            if (waypoints[i].headingId == waypoints[wpNm].id) {
+                waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[wpNm].position);
+                dis = distance(waypoints[i].position, waypoints[wpNm].position);
+                waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[wpNm].altitude), dis)));
+                waypoints[i].refreshMarkers();
             }
-            waypoints[wpNm].refreshMarkers();
+        }
+        poly.setPath(path);
 
-            for (let i = Math.max(1, wpNm - 1); i < Math.min(waypoints.length - 1, wpNm + 2); i++) {
-                pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);
+        for (let i = 0; i < pois.length; i++) {
+            if (waypoints[wpNm].headingId == pois[i].id) {
+                waypoints[wpNm].markColor = pois[i].markColor;
+                waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, pois[i].position);
+                dis = distance(waypoints[wpNm].position, pois[i].position);
+                waypoints[wpNm].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[wpNm].altitude - pois[i].altitude), dis)));
             }
+        }
+        waypoints[wpNm].refreshMarkers();
 
-            if (wpNm > 0) {
-                pos = middle(waypoints[wpNm - 1].position,
-                        waypoints[wpNm].position);
-                wpMid[wpNm - 1].setPosition(pos);
-            }
+        for (let i = Math.max(1, wpNm - 1); i < Math.min(waypoints.length - 1, wpNm + 2); i++) {
+            pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);
+        }
 
-            if (wpNm < waypoints.length - 1) {
-                pos = middle(waypoints[wpNm].position, waypoints[wpNm + 1].position);
-                wpMid[wpNm].setPosition(pos);
-            }
+        if (wpNm > 0) {
+            pos = middle(waypoints[wpNm - 1].position,
+                    waypoints[wpNm].position);
+            wpMid[wpNm - 1].setPosition(pos);
+        }
 
-        } else {}
+        if (wpNm < waypoints.length - 1) {
+            pos = middle(waypoints[wpNm].position, waypoints[wpNm + 1].position);
+            wpMid[wpNm].setPosition(pos);
+        }
+
+    }
+
+    if (stat == 5) {
+        pois[wpNm].position = pois[wpNm].marker.getPosition();
+        pois[wpNm].refreshMarkers();
+
+        for (let i = 0; i < waypoints.length; i++) {
+            if (waypoints[i].headingId == pois[wpNm].id) {
+                waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[wpNm].position);
+                dis = distance(waypoints[i].position, pois[wpNm].position);
+                waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - pois[wpNm].altitude), dis)));
+				waypoints[i].refreshMarkers();
+			}
+        }
 
     }
 
     if (stat == 3) {
         //   redrawPath();
     }
+
 }
 
 function dragMd(mdNm, stat) {
-    // alert(mdNm + "  " + stat);
 
     if (stat < 3) {
 
@@ -437,10 +514,14 @@ function dragMd(mdNm, stat) {
 
         for (let i = 0; i < waypoints.length - 1; i++) {
             waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[i + 1].position);
+            dis = distance(waypoints[i].position, waypoints[i + 1].position);
+            waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[i + 1].altitude), dis)));
+
             waypoints[i].refreshMarkers();
         }
 
     }
+
 }
 
 function redrawPath() {
@@ -451,8 +532,7 @@ function redrawPath() {
         waypoints[i].refreshMarkers;
     }
 
-	poly.setPath(path)
-
+    poly.setPath(path)
 
     for (let i = 1; i < waypoints.length - 1; i++) {
         pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);

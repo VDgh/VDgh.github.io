@@ -53,19 +53,19 @@ class Poi {
         });
 
         this.marker.addListener("dragstart", () => {
-            dragWp(this.index, 1);
+            dragWp(this.index, 4);
         });
 
         this.marker.addListener("drag", () => {
-            dragWp(this.index, 2);
+            dragWp(this.index, 5);
         });
 
         this.marker.addListener("dragend", () => {
-            dragWp(this.index, 3);
+            dragWp(this.index, 6);
         });
 
         const altIcon = {
-            path: "M0,0 z",
+            path: "M0,0 0,0 z",
             fillColor: "#ddd",
             fillOpacity: 1,
             strokeWeight: 0,
@@ -91,7 +91,7 @@ class Poi {
         });
 
         const ixIcon = {
-            path: " M 0,0 z ",
+            path: " M 0,0 0,0 z ",
             fillColor: "#fff",
             fillOpacity: .7,
             strokeWeight: 0,
@@ -118,22 +118,29 @@ class Poi {
 
     refreshMarkers = function () {
 
-        this.marker.setPosition(this.position);
+        var ic = this.marker.getIcon();
+        ic.fillColor = this.markColor;
+        if (this.markColor == markerColor)
+            ic.strokeColor = markerColor;
+        else
+            ic.strokeColor = '#000';
 
-        this.altMarker.setMap(null);
-        this.ixMarker.setMap(null);
+        this.marker.setIcon(ic);
 
-        this.ixMarker.setPosition(this.position);
-        var ic = this.ixMarker.getLabel();
+        ic = this.ixMarker.getIcon();
+        this.ixMarker.setIcon(ic);
+        ic = this.ixMarker.getLabel();
         ic.text = this.index + 1;
         this.ixMarker.setLabel(ic);
-        this.altMarker.setPosition(this.position);
+        this.ixMarker.setPosition(this.position);
+
+        ic = this.altMarker.getIcon();
+        this.altMarker.setIcon(ic);
         ic = this.altMarker.getLabel();
         ic.text = this.altitude;
         this.altMarker.setLabel(ic);
+        this.altMarker.setPosition(this.position);
 
-        this.ixMarker.setMap(map);
-        this.altMarker.setMap(map);
     }
 
     deletePoi = function () {
@@ -173,7 +180,9 @@ class Poi {
 
         el = xml.getElementsByTagName('altitude');
         this.altitude = parseInt(el[0].getAttribute('value'));
-
-    }
+		
+		this.refreshMarkers();
+    
+	}
 
 }

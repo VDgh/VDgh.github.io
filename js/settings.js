@@ -410,7 +410,7 @@ function bezierVal(src, vl) {
         vl = 0;
     //if(selWp==waypoints.length-1) vl=0;
     sl = document.getElementById("bzSlider");
-    inp = document.getElementById("bzInpit");
+    inp = document.getElementById("bzInput");
     if (src == 1)
         vll = parseFloat(vl) / 100;
     else
@@ -432,7 +432,7 @@ function bezierVal(src, vl) {
 function azimithVal(vl) {
 
     sl = document.getElementById("yawSlider");
-    inp = document.getElementById("yawInpit");
+    inp = document.getElementById("yawInput");
     vll = parseInt(vl);
     mn = parseInt(sl.min);
     mx = parseInt(sl.max);
@@ -448,7 +448,7 @@ function azimithVal(vl) {
 
 function pitchVal(vl) {
     sl = document.getElementById("pitchSlider");
-    inp = document.getElementById("pitchInpit");
+    inp = document.getElementById("pitchInput");
     vll = parseInt(vl);
     mn = parseInt(sl.min);
     mx = parseInt(sl.max);
@@ -464,7 +464,7 @@ function pitchVal(vl) {
 
 function speedVal(src, vl) {
     sl = document.getElementById("spSlider");
-    inp = document.getElementById("spInpit");
+    inp = document.getElementById("spInput");
     if (src == 1)
         vll = parseFloat(vl) / 10;
     else
@@ -484,7 +484,7 @@ function altitudeVal(vl) {
 
 
     sl = document.getElementById("altSlider");
-    inp = document.getElementById("altInpit");
+    inp = document.getElementById("altInput");
     vll = parseInt(vl);
     mn = parseInt(sl.min);
     mx = parseInt(sl.max);
@@ -506,7 +506,7 @@ function altitudeValP(vl) {
 
 
     sl = document.getElementById("altSliderP");
-    inp = document.getElementById("altInpitP");
+    inp = document.getElementById("altInputP");
     vll = parseInt(vl);
     mn = parseInt(sl.min);
     mx = parseInt(sl.max);
@@ -674,7 +674,6 @@ function openFl(type) {
             for (let i = 0; i < w.length; i++) {
                 wpt = new Waypoint(null, i);
                 wpt.setFromXml(w[i]);
-                //wpt.refreshMarkers();
                 waypoints.push(wpt);
             }
 
@@ -682,7 +681,6 @@ function openFl(type) {
             for (let i = 0; i < p.length; i++) {
                 po = new Poi(null, i);
                 po.setFromXml(p[i]);
-                po.refreshMarkers();
                 pois.push(po);
             }
 
