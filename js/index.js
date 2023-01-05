@@ -16,7 +16,7 @@ let tiltRotBtns;
 
 // Initialize and add the map
 function initMap() {
-    const pieIIX44 = {
+    const gfg_office = {
         lat: 46.38464,
         lng: -72.55208,
     };
@@ -24,7 +24,7 @@ function initMap() {
     map = new google.maps.Map(
             document.getElementById("map"), {
             zoom: 17,
-            center: pieIIX44,
+            center: gfg_office,
             zoomControl: true,
             mapTypeControl: true,
             mapTypeId: "terrain",
@@ -119,6 +119,7 @@ function polyM() {
 
 }
 //=======================================================================
+
 function timeLine() {
 
     totalPoly = [];
@@ -126,98 +127,58 @@ function timeLine() {
     totalAltitude = [];
     totalAzimuth = [];
     totalPitch = [];
-
-    sgmPoly = [];
-    sgmSpeed = [];
-    sgmAltitude = [];
-    sgmAzimuth = [];
-    sgmPitch = [];
-
     steps = 10;
-
     for (i = 0; i < waypoints.length; i++) {
-        if (waypoints[i].smoothing == 0 || sgmPoly.length == 0 || i == waypoints.length - 1) {
-
-            sgmPoly.push(waypoints[i].position);
-            sgmSpeed.push(waypoints[i].speed);
-            sgmAltitude.push(waypoints[i].altitude);
-            sgmAzimuth.push(waypoints[i].azimuth);
-            sgmPitch.push(waypoints[i].pitchAngle);
-            if ((waypoints[i].smoothing == 0 && sgmPoly.length > 1) || i == waypoints.length - 1) {
-
-                totalPoly.push(sgmPoly);
-                totalSpeed.push(sgmSpeed);
-                totalAltitude.push(sgmAltitude);
-                totalAzimuth.push(sgmAzimuth);
-                totalPitch.push(sgmPitch);
-                sgmPoly = [];
-                sgmSpeed = [];
-                sgmAltitude = [];
-                sgmAzimuth = [];
-                sgmPitch = [];
-                sgmPoly.push(waypoints[i].position);
-                sgmSpeed.push(waypoints[i].speed);
-                sgmAltitude.push(waypoints[i].altitude);
-                sgmAzimuth.push(waypoints[i].azimuth);
-                sgmPitch.push(waypoints[i].pitchAngle);
-
-            }
-
+        if (waypoints[i].smoothing == 0 || i == 0 || i == waypoints.length - 1) {
+            totalPoly.push(waypoints[i].position);
+            totalSpeed.push(waypoints[i].speed);
+            totalAltitude.push(waypoints[i].altitude);
+            totalAzimuth.push(waypoints[i].azimuth);
+            totalPitch.push(waypoints[i].pitchAngle);
         } else {
             pntPoly = waypoints[i].bezierPath(false, steps, waypoints[i - 1], waypoints[i + 1]);
             pntSpeed = bezierCurve2(pntPoly.length, waypoints[i - 1].speed, waypoints[i].speed);
 
             for (j = 0; j < pntPoly.length; j++) {
-                sgmPoly.push(pntPoly[j]);
-                sgmSpeed.push(pntSpeed[j]);
-                sgmAltitude.push(waypoints[i].bezierAltitude[j]);
-                sgmAzimuth.push(waypoints[i].bezierAzimuth[j]);
-                sgmPitch.push(waypoints[i].bezierPitchAngle[j]);
+                totalPoly.push(pntPoly[j]);
+                totalSpeed.push(pntSpeed[j]);
+                totalAltitude.push(waypoints[i].bezierAltitude[j]);
+                totalAzimuth.push(waypoints[i].bezierAzimuth[j]);
+                totalPitch.push(waypoints[i].bezierPitchAngle[j]);
             }
         }
-
     }
+    totalPoly.push(waypoints[waypoints.length - 1].position);
+    totalSpeed.push(waypoints[waypoints.length - 1].speed);
+    totalAltitude.push(waypoints[waypoints.length - 1].altitude);
+    totalAzimuth.push(waypoints[waypoints.length - 1].azimuth);
+    totalPitch.push(waypoints[waypoints.length - 1].pitchAngle);
 
     //alert( totalPoly.length);
 
     stepSec = 1;
+    tl = timeline(stepSec, totalPoly, totalSpeed);
 
-    tmLn = [];
-    secBg = 0;
     //path=[];
-    for (i = 0; i < totalPoly.length; i++) {
-        tl = timeline(stepSec, totalPoly[i], totalSpeed[i]);
-        for (j = secBg; j <= tl.length; j++) {
-            if (j < tl.length) {
-                wpIx = Math.floor(tl[j]);
-                rh = tl[j] - wpIx;
-            } else {
-                wpIx = Math.floor(tl[j - 1]);
-                rh = 1;
-            }
-            la = (1 - rh) * totalPoly[i][wpIx].lat() + rh * totalPoly[i][wpIx + 1].lat();
-            lo = (1 - rh) * totalPoly[i][wpIx].lng() + rh * totalPoly[i][wpIx + 1].lng();
-            tm = new TimePoint(new google.maps.LatLng(la, lo), tmLn.length);
-            tm.speed = (1 - rh) * totalSpeed[i][wpIx] + rh * totalSpeed[i][wpIx + 1];
-            tm.altitude = (1 - rh) * totalAltitude[i][wpIx] + rh * totalAltitude[i][wpIx + 1];
-            tm.azimuth = angleRatio(totalAzimuth[i][wpIx], totalAzimuth[i][wpIx + 1], rh); //(1-rh)*totalAzimuth[wpIx]+rh*totalAzimuth[wpIx+1];
-            tm.pitchAngle = (1 - rh) * totalPitch[i][wpIx] + rh * totalPitch[i][wpIx + 1];
-            tmLn.push(tm);
+    tmLn = [];
+    for (i = 0; i < tl.length; i++) {
+        wpIx = Math.floor(tl[i]);
+        rh = tl[i] - wpIx;
+        la = (1 - rh) * totalPoly[wpIx].lat() + rh * totalPoly[wpIx + 1].lat();
+        lo = (1 - rh) * totalPoly[wpIx].lng() + rh * totalPoly[wpIx + 1].lng();
+        tm = new TimePoint(new google.maps.LatLng(la, lo), i);
+        tm.speed = (1 - rh) * totalSpeed[wpIx] + rh * totalSpeed[wpIx + 1];
+        tm.altitude = (1 - rh) * totalAltitude[wpIx] + rh * totalAltitude[wpIx + 1];
+        tm.azimuth = angleRatio(totalAzimuth[wpIx], totalAzimuth[wpIx + 1], rh); //(1-rh)*totalAzimuth[wpIx]+rh*totalAzimuth[wpIx+1];
+        tm.pitchAngle = (1 - rh) * totalPitch[wpIx] + rh * totalPitch[wpIx + 1];
 
-            for (k = 0; k < waypoints.length; k++) {
-                if (waypoints[k].position.lat() == tmLn[tmLn.length - 1].position.lat()) {
-                    if (waypoints[k].position.lng() == tmLn[tmLn.length - 1].position.lng()) {
-                        tmLn[tmLn.length - 1].listActivities = waypoints[k].listActivities;
-                    }
-                }
-            }
-            //path.push(new google.maps.LatLng(la,lo));
-        }
-        secBg = 1;
+        tmLn.push(tm);
+
+        //path.push(new google.maps.LatLng(la,lo));
     }
-    tmLn[0].listActivities = waypoints[0].listActivities;
 
     //tlPoly.setPath(path);
+    //alert(tmLn.length);
     redraw3D();
 }
 
@@ -324,8 +285,8 @@ function redraw3D() {
 }
 
 function slowDown(evn) {
-    e = evn;
-    del = setTimeout(slowClick, 500);
+    e=evn;
+	del = setTimeout(slowClick, 500);
     reliefElevation = -1000;
     elevator.getElevationForLocations({
         locations: [evn.latLng],
@@ -354,40 +315,20 @@ function addLatLng(evn) {
     if (radioWp.checked) {
         tw = new Waypoint(evn.latLng, waypoints.length);
         tw.elevation = Math.round(reliefElevation);
-        if (waypoints.length > 0) {
-            tw.speed = waypoints[waypoints.length - 1].speed;
-            tw.altitude = waypoints[waypoints.length - 1].altitude;
-            if (waypoints[waypoints.length - 1].headingId == 0 && waypoints[waypoints.length - 1].azimuth == 0) {
-                waypoints[waypoints.length - 1].headingId = tw.id;
-                waypoints[waypoints.length - 1].azimuth = positionToAzimuth(waypoints[waypoints.length - 1].position, tw.position);
-                dis = distance(waypoints[waypoints.length - 1].position, tw.position);
-                waypoints[waypoints.length - 1].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[waypoints.length - 1].altitude - tw.altitude), dis)));
-                waypoints[waypoints.length - 1].refreshMarkers();
-            } else if (waypoints[waypoints.length - 1].headingId != 0)
-                tw.headingId = waypoints[waypoints.length - 1].headingId;
-            else if (waypoints[waypoints.length - 1].azimuth != 0)
-                tw.azimuth = waypoints[waypoints.length - 1].azimuth;
-
-            if (waypoints.length > 1 &&
-                waypoints[waypoints.length - 1].listActivities.length == 0 &&
-                waypoints[waypoints.length - 1].smoothing == 0) {
-                waypoints[waypoints.length - 1].smoothing = defSmoothing;
-            }
-        }
         waypoints.push(tw);
-        displayChange(waypoints.length, false);
+        displayChange(waypoints.length);
         redrawPath();
     } else {
         po = new Poi(evn.latLng, pois.length);
         pois.push(po);
-        displayChange(pois.length, false);
+        displayChange(pois.length);
     }
 
 }
 
 function clickWp(wpNm) {
 
-    displayChange(wpNm + 1, false);
+    displayChange(wpNm + 1);
 
     if (radioWp.checked) {
         for (let i = 0; i < waypoints.length; i++) {
@@ -429,14 +370,9 @@ function dragWp(wpNm, stat) {
                 path.push(waypoints[i].position);
                 if (waypoints[wpNm].headingId == waypoints[i].id) {
                     waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, waypoints[i].position);
-                    dis = distance(waypoints[wpNm].position, waypoints[i].position);
-                    waypoints[wpNm].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[wpNm].altitude - waypoints[i].altitude), dis)));
-
                 }
                 if (waypoints[i].headingId == waypoints[wpNm].id) {
                     waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[wpNm].position);
-                    dis = distance(waypoints[i].position, waypoints[wpNm].position);
-                    waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[wpNm].altitude), dis)));
                     waypoints[i].refreshMarkers();
                 }
             }
@@ -446,8 +382,6 @@ function dragWp(wpNm, stat) {
                 if (waypoints[wpNm].headingId == pois[i].id) {
                     waypoints[wpNm].markColor = pois[i].markColor;
                     waypoints[wpNm].azimuth = positionToAzimuth(waypoints[wpNm].position, pois[i].position);
-                    dis = distance(waypoints[wpNm].position, pois[i].position);
-                    waypoints[wpNm].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[wpNm].altitude - pois[i].altitude), dis)));
                 }
             }
             waypoints[wpNm].refreshMarkers();
@@ -467,218 +401,205 @@ function dragWp(wpNm, stat) {
                 wpMid[wpNm].setPosition(pos);
             }
 
-        } else {
-
-            pois[wpNm].position = pois[wpNm].marker.getPosition();
-            for (let i = 0; i < waypoints.length; i++) {
-                if (waypoints[i].headingId == pois[wpNm].id) {
-                    waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[wpNm].position);
-                        dis = distance(waypoints[i].position, pois[wpNm].position);
-                        waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - pois[wpNm].altitude), dis)));
-					}
-                }
-            }
-			pois[wpNm].refreshMarkers();
-        }
-
-        if (stat == 3) {
-            //   redrawPath();
-        }
+        } else {}
 
     }
 
-    function dragMd(mdNm, stat) {
-
-        if (stat < 3) {
-
-            insrPoly.setMap(null);
-            path = [];
-
-            path.push(waypoints[mdNm].position);
-            path.push(wpMid[mdNm].getPosition());
-            path.push(waypoints[mdNm + 1].position);
-
-            insrPoly.setPath(path);
-            insrPoly.setMap(map);
-
-        } else {
-
-            waypoints.splice(mdNm + 1, 0, new Waypoint(wpMid[mdNm].getPosition(), mdNm + 1));
-            insrPoly.setMap(null);
-            redrawPath();
-            for (let i = 0; i < waypoints.length; i++) {
-                waypoints[i].index = i;
-                waypoints[i].refreshMarkers();
-            }
-
-            for (let i = 0; i < waypoints.length - 1; i++) {
-                waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[i + 1].position);
-                dis = distance(waypoints[i].position, waypoints[i + 1].position);
-                waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - waypoints[i + 1].altitude), dis)));
-
-                waypoints[i].refreshMarkers();
-            }
-
-        }
-
+    if (stat == 3) {
+        //   redrawPath();
     }
+}
 
-    function redrawPath() {
+function dragMd(mdNm, stat) {
+    // alert(mdNm + "  " + stat);
 
+    if (stat < 3) {
+
+        insrPoly.setMap(null);
         path = [];
+
+        path.push(waypoints[mdNm].position);
+        path.push(wpMid[mdNm].getPosition());
+        path.push(waypoints[mdNm + 1].position);
+
+        insrPoly.setPath(path);
+        insrPoly.setMap(map);
+
+    } else {
+
+        waypoints.splice(mdNm + 1, 0, new Waypoint(wpMid[mdNm].getPosition(), mdNm + 1));
+        insrPoly.setMap(null);
+        redrawPath();
         for (let i = 0; i < waypoints.length; i++) {
-            path.push(waypoints[i].position);
-            waypoints[i].refreshMarkers;
+            waypoints[i].index = i;
+            waypoints[i].refreshMarkers();
         }
 
-        poly.setPath(path)
-
-        for (let i = 1; i < waypoints.length - 1; i++) {
-            pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);
-        }
-
-        for (let i = 0; i < wpMid.length; i++) {
-            google.maps.event.clearInstanceListeners(wpMid[i]);
-            wpMid[i].setMap(null);
-        }
-        wpMid = [];
-        for (let i = 1; i < waypoints.length; i++) {
-            dis = parseInt(distance(waypoints[i - 1].position, waypoints[i].position), 10);
-            pt = " M -5,3 5,3 5,-3 -5,-3  z ";
-            if (dis > 10) {
-                pt = " M -6,3 6,3 6,-3 -6,-3  z ";
-            }
-            if (dis > 100) {
-                pt = " M -7,3 7,3 7,-3 -7,-3  z ";
-            }
-            if (dis > 1000) {
-                pt = " M -8,3 8,3 8,-3 -8,-3  z ";
-            }
-            const lbl = {
-                path: pt,
-                fillColor: "#300",
-                fillOpacity: 1.0,
-                strokeWeight: 1,
-                strokeColor: "#100",
-                rotation: 0,
-                scale: 3,
-                anchor: new google.maps.Point(0, 0),
-            };
-
-            const md = new google.maps.Marker({
-                position: middle(waypoints[i - 1].position, waypoints[i].position),
-                icon: lbl,
-                label: {
-                    text: dis.toString() + " m",
-                    color: '#fc0',
-                    fontSize: "10px"
-                },
-
-                map: map,
-                draggable: true,
-            });
-
-            wpMid.push(md);
-            md.addListener("dragstart", () => {
-                dragMd(wpMid.indexOf(md), 1);
-            });
-
-            md.addListener("drag", () => {
-                dragMd(wpMid.indexOf(md), 2);
-            });
-
-            md.addListener("dragend", () => {
-                dragMd(wpMid.indexOf(md), 3);
-            });
+        for (let i = 0; i < waypoints.length - 1; i++) {
+            waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, waypoints[i + 1].position);
+            waypoints[i].refreshMarkers();
         }
 
     }
+}
 
-    //==============================================================
+function redrawPath() {
 
-    var latlng;
-    function addYourLocationButton(map) {
-        var controlDiv = document.createElement('div');
+    path = [];
+    for (let i = 0; i < waypoints.length; i++) {
+        path.push(waypoints[i].position);
+        waypoints[i].refreshMarkers;
+    }
 
-        var firstChild = document.createElement('button');
-        firstChild.style.backgroundColor = '#fff';
-        firstChild.style.border = 'none';
-        firstChild.style.outline = 'none';
-        firstChild.style.width = '28px';
-        firstChild.style.height = '28px';
-        firstChild.style.borderRadius = '2px';
-        firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
-        firstChild.style.cursor = 'pointer';
-        firstChild.style.marginRight = '10px';
-        firstChild.style.padding = '0px';
-        firstChild.title = 'Your Location';
-        controlDiv.appendChild(firstChild);
+	poly.setPath(path)
 
-        var secondChild = document.createElement('div');
-        secondChild.style.margin = '5px';
-        secondChild.style.width = '18px';
-        secondChild.style.height = '18px';
-        secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-1x.png)';
-        secondChild.style.backgroundSize = '180px 18px';
-        secondChild.style.backgroundPosition = '0px 0px';
-        secondChild.style.backgroundRepeat = 'no-repeat';
-        secondChild.id = 'you_location_img';
-        firstChild.appendChild(secondChild);
 
-        google.maps.event.addListener(map, 'dragend', function () {
-            $('#you_location_img').css('background-position', '0px 0px');
+    for (let i = 1; i < waypoints.length - 1; i++) {
+        pth = waypoints[i].bezierPath(true, 30, waypoints[i - 1], waypoints[i + 1]);
+    }
+
+    for (let i = 0; i < wpMid.length; i++) {
+        google.maps.event.clearInstanceListeners(wpMid[i]);
+        wpMid[i].setMap(null);
+    }
+    wpMid = [];
+    for (let i = 1; i < waypoints.length; i++) {
+        dis = parseInt(distance(waypoints[i - 1].position, waypoints[i].position), 10);
+        pt = " M -5,3 5,3 5,-3 -5,-3  z ";
+        if (dis > 10) {
+            pt = " M -6,3 6,3 6,-3 -6,-3  z ";
+        }
+        if (dis > 100) {
+            pt = " M -7,3 7,3 7,-3 -7,-3  z ";
+        }
+        if (dis > 1000) {
+            pt = " M -8,3 8,3 8,-3 -8,-3  z ";
+        }
+        const lbl = {
+            path: pt,
+            fillColor: "#300",
+            fillOpacity: 1.0,
+            strokeWeight: 1,
+            strokeColor: "#100",
+            rotation: 0,
+            scale: 3,
+            anchor: new google.maps.Point(0, 0),
+        };
+
+        const md = new google.maps.Marker({
+            position: middle(waypoints[i - 1].position, waypoints[i].position),
+            icon: lbl,
+            label: {
+                text: dis.toString() + " m",
+                color: '#fc0',
+                fontSize: "10px"
+            },
+
+            map: map,
+            draggable: true,
         });
 
-        firstChild.addEventListener('click', function () {
+        wpMid.push(md);
+        md.addListener("dragstart", () => {
+            dragMd(wpMid.indexOf(md), 1);
+        });
 
-            if (latlng != undefined) {
+        md.addListener("drag", () => {
+            dragMd(wpMid.indexOf(md), 2);
+        });
+
+        md.addListener("dragend", () => {
+            dragMd(wpMid.indexOf(md), 3);
+        });
+    }
+
+}
+
+//==============================================================
+
+var latlng;
+function addYourLocationButton(map) {
+    var controlDiv = document.createElement('div');
+
+    var firstChild = document.createElement('button');
+    firstChild.style.backgroundColor = '#fff';
+    firstChild.style.border = 'none';
+    firstChild.style.outline = 'none';
+    firstChild.style.width = '28px';
+    firstChild.style.height = '28px';
+    firstChild.style.borderRadius = '2px';
+    firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+    firstChild.style.cursor = 'pointer';
+    firstChild.style.marginRight = '10px';
+    firstChild.style.padding = '0px';
+    firstChild.title = 'Your Location';
+    controlDiv.appendChild(firstChild);
+
+    var secondChild = document.createElement('div');
+    secondChild.style.margin = '5px';
+    secondChild.style.width = '18px';
+    secondChild.style.height = '18px';
+    secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-1x.png)';
+    secondChild.style.backgroundSize = '180px 18px';
+    secondChild.style.backgroundPosition = '0px 0px';
+    secondChild.style.backgroundRepeat = 'no-repeat';
+    secondChild.id = 'you_location_img';
+    firstChild.appendChild(secondChild);
+
+    google.maps.event.addListener(map, 'dragend', function () {
+        $('#you_location_img').css('background-position', '0px 0px');
+    });
+
+    firstChild.addEventListener('click', function () {
+
+        if (latlng != undefined) {
+            map.setCenter(latlng);
+            return;
+        }
+
+        var imgX = '0';
+        var animationInterval = setInterval(function () {
+            if (imgX == '-18')
+                imgX = '0';
+            else
+                imgX = '-18';
+            $('#you_location_img').css('background-position', imgX + 'px 0px');
+        }, 500);
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 map.setCenter(latlng);
-                return;
-            }
-
-            var imgX = '0';
-            var animationInterval = setInterval(function () {
-                if (imgX == '-18')
-                    imgX = '0';
-                else
-                    imgX = '-18';
-                $('#you_location_img').css('background-position', imgX + 'px 0px');
-            }, 500);
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                    map.setCenter(latlng);
-                    clearInterval(animationInterval);
-                    $('#you_location_img').css('background-position', '-144px 0px');
-                });
-            } else {
                 clearInterval(animationInterval);
-                $('#you_location_img').css('background-position', '0px 0px');
-            }
-        });
+                $('#you_location_img').css('background-position', '-144px 0px');
+            });
+        } else {
+            clearInterval(animationInterval);
+            $('#you_location_img').css('background-position', '0px 0px');
+        }
+    });
 
-        controlDiv.index = 1;
-        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
-    }
+    controlDiv.index = 1;
+    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
+}
 
-    //=============================================================
-
-
-    //***********************************************
-    //***********************************************
-    //***********************************************
+//=============================================================
 
 
-    function middle(vx1, vx2) {
+//***********************************************
+//***********************************************
+//***********************************************
 
-        var lat = (vx1.lat() + vx2.lat()) / 2;
 
-        var lng = (vx1.lng() + vx2.lng()) / 2;
-        vx = new google.maps.LatLng(lat, lng);
+function middle(vx1, vx2) {
 
-        return vx;
-    }
+    var lat = (vx1.lat() + vx2.lat()) / 2;
 
-    function pixelDistance(vx1, vx2, $zoom) {
-        return distance(vx1, vx2) * pxPerKm21 >> (21 - $zoom);
-    }
+    var lng = (vx1.lng() + vx2.lng()) / 2;
+    vx = new google.maps.LatLng(lat, lng);
+
+    return vx;
+}
+
+function pixelDistance(vx1, vx2, $zoom) {
+    return distance(vx1, vx2) * pxPerKm21 >> (21 - $zoom);
+}
