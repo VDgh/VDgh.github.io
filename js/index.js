@@ -11,6 +11,7 @@ let tmLn = [];
 let polyArr = [];
 
 let elevator;
+
 let infowindow;
 let tiltRotBtns;
 
@@ -331,10 +332,15 @@ function slowDown(evn) {
         locations: [evn.latLng],
     }, function (results, status) {
         reliefElevation = results[0].elevation;
-        if (waypoints.length > 0 && waypoints[waypoints.length - 1].position.lat() == evn.latLng.lat()) {
-            waypoints[waypoints.length - 1].elevation = Math.round(reliefElevation);
+        if (radioWp.checked) {
+            if (waypoints.length > 0 && waypoints[waypoints.length - 1].position.lat() == evn.latLng.lat()) {
+                waypoints[waypoints.length - 1].elevation = Math.round(reliefElevation);
+            }
+        } else {
+            if (pois.length > 0 && pois[pois.length - 1].position.lat() == evn.latLng.lat()) {
+                pois[pois.length - 1].elevation = Math.round(reliefElevation);
+            }
         }
-
     });
 }
 
@@ -379,6 +385,7 @@ function addLatLng(evn) {
         redrawPath();
     } else {
         po = new Poi(evn.latLng, pois.length);
+        po.elevation = Math.round(reliefElevation);
         pois.push(po);
         displayChange(pois.length, false);
     }
@@ -476,14 +483,37 @@ function dragWp(wpNm, stat) {
                 waypoints[i].azimuth = positionToAzimuth(waypoints[i].position, pois[wpNm].position);
                 dis = distance(waypoints[i].position, pois[wpNm].position);
                 waypoints[i].pitchAngle = Math.round(toDegrees(Math.atan2((waypoints[i].altitude - pois[wpNm].altitude), dis)));
-				waypoints[i].refreshMarkers();
-			}
+                waypoints[i].refreshMarkers();
+            }
         }
 
     }
 
+    //if (stat == 3 || stat == 6) {
+
+
     if (stat == 3) {
-        //   redrawPath();
+        ps = waypoints[wpNm].position;
+        elevator.getElevationForLocations({
+            locations: [ps],
+        }, function (results, status) {
+            reliefElevation = results[0].elevation;
+            waypoints[wpNm].elevation = Math.round(reliefElevation);
+            if (display.value == (wpNm + 1).toString() && radioWp.checked)
+                updateSettings(wpNm);
+        });
+    }
+    if (stat == 6) {
+        ps = pois[wpNm].position;
+        elevator.getElevationForLocations({
+            locations: [ps],
+        }, function (results, status) {
+            reliefElevation = results[0].elevation;
+
+            pois[wpNm].elevation = Math.round(reliefElevation);
+            if (display.value == (wpNm + 1).toString() && !radioWp.checked)
+                updateSettings(wpNm);
+        });
     }
 
 }

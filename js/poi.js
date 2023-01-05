@@ -180,7 +180,6 @@ class Poi {
 
         el = xml.getElementsByTagName('altitude');
         this.altitude = parseInt(el[0].getAttribute('value'));
-		
 		this.refreshMarkers();
     
 	}

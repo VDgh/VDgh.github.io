@@ -16,6 +16,7 @@ function initSettings() {
     poi = document.getElementById("POI");
     display = document.getElementById("display");
     locationText = document.getElementById("locTxt");
+	locationTextP = document.getElementById("locTxtP");
     selLookAt = document.getElementById("selLookAt");
 
     var radios = document.querySelectorAll('input[type=radio]'); //  'input[type=radio][name=".."]'
@@ -26,7 +27,6 @@ function updateSettings(upNmb) {
 
     if (radioWp.checked) {
         selWp = upNmb;
-
         waypoints[upNmb].markColor = markerColor;
 
         locationText.value = waypoints[upNmb].position.lat() + "\n" + waypoints[upNmb].position.lng() + "\n" + waypoints[upNmb].elevation;
@@ -107,8 +107,8 @@ function updateSettings(upNmb) {
         }
 
     } else {
-		
-	    locationText.value = pois[upNmb].position.lat() + "\n" + pois[upNmb].position.lng() + "\n" + pois[upNmb].elevation;
+		selPoi = upNmb;
+	    locationTextP.value = pois[upNmb].position.lat() + "\n" + pois[upNmb].position.lng() + "\n" + pois[upNmb].elevation;
 		altitudeValP(pois[upNmb].altitude);
 	}
 }
@@ -496,7 +496,6 @@ function altitudeVal(vl) {
     inp.value = vll;
 
     waypoints[selWp].altitude = vll;
-	updateSettings(selWp);
 	waypoints[selWp].refreshMarkers();
 	
 }
