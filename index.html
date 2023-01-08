@@ -21,13 +21,13 @@
 
 		<!--Add a script by google -->
 		<!--AIzaSyACXVz5oXNw9IQuvqxcmHNWdc_1Edt45jI-->
+	
 
 		<script async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyCp4BFOpsm0SZU99ls4EAGflJyG-Jbvzh4   
 				&callback=initMap&libraries=geometry,places,elevation"/>
 
-<!==		
-
+		<!==	
 		<script	async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg 
 				&callback=initMap&libraries=geometry,places,elevation"/>
@@ -42,7 +42,8 @@
 
 
 	<div id="collapseM">
-		<button  class="ttl" style=" height:100%; float: left;"  onclick="toggleMission()"><img src="./css/img/Settings-24.png"/></button>
+		<button  class="ttl" style=" height:100%; float: left;"  onclick="toggleMission();"><img src="./css/img/Settings-24.png"/></button>
+		<button  class="ttl" style=" height:100%; float: right;" id="fullScr" onclick="toggleFullscreen();">Fullscreen On</button>
 	</div>
 
 	<div class="panel" id="panelM" >
