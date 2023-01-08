@@ -462,14 +462,15 @@ function dragWp(wpNm, stat) {
         }
 
         if (wpNm > 0) {
-            pos = middle(waypoints[wpNm - 1].position,
-                    waypoints[wpNm].position);
+   			pos = middle(waypoints[wpNm - 1].position, waypoints[wpNm].position);
             wpMid[wpNm - 1].setPosition(pos);
-        }
+            wpMid[wpNm - 1].setMap(map);
+       }
 
         if (wpNm < waypoints.length - 1) {
-            pos = middle(waypoints[wpNm].position, waypoints[wpNm + 1].position);
+  			pos = middle(waypoints[wpNm].position, waypoints[wpNm + 1].position);
             wpMid[wpNm].setPosition(pos);
+            wpMid[wpNm].setMap(map);
         }
 
     }
@@ -502,7 +503,33 @@ function dragWp(wpNm, stat) {
             if (display.value == (wpNm + 1).toString() && radioWp.checked)
                 updateSettings(wpNm);
         });
-    }
+    
+       if (wpNm > 0) {
+            wpMid[wpNm - 1].setMap(null);
+			dis = parseInt(distance(waypoints[wpNm - 1].position, waypoints[wpNm].position), 10);
+            let lb = wpMid[wpNm - 1].getLabel();
+            lb.text = dis+ " m";
+            wpMid[wpNm - 1].setLabel(lb);
+ 			pos = middle(waypoints[wpNm - 1].position, waypoints[wpNm].position);
+            wpMid[wpNm - 1].setPosition(pos);
+            wpMid[wpNm - 1].setMap(map);
+       }
+
+        if (wpNm < waypoints.length - 1) {
+            wpMid[wpNm].setMap(null);
+	        dis = parseInt(distance(waypoints[wpNm + 1].position, waypoints[wpNm].position), 10);
+            let lb = wpMid[wpNm].getLabel();
+            lb.text = dis+ " m";
+            wpMid[wpNm ].setLabel(lb);
+			pos = middle(waypoints[wpNm].position, waypoints[wpNm + 1].position);
+            wpMid[wpNm].setPosition(pos);
+            wpMid[wpNm].setMap(map);
+        }
+	
+	
+	
+	
+	}
     if (stat == 6) {
         ps = pois[wpNm].position;
         elevator.getElevationForLocations({
@@ -575,8 +602,10 @@ function redrawPath() {
     wpMid = [];
     for (let i = 1; i < waypoints.length; i++) {
         dis = parseInt(distance(waypoints[i - 1].position, waypoints[i].position), 10);
-        pt = " M -5,3 5,3 5,-3 -5,-3  z ";
-        if (dis > 10) {
+       pt = " M -8,3 8,3 8,-3 -8,-3  z ";
+		/*
+	   pt = " M -5,3 5,3 5,-3 -5,-3  z ";
+		if (dis > 10) {
             pt = " M -6,3 6,3 6,-3 -6,-3  z ";
         }
         if (dis > 100) {
@@ -585,7 +614,9 @@ function redrawPath() {
         if (dis > 1000) {
             pt = " M -8,3 8,3 8,-3 -8,-3  z ";
         }
-        const lbl = {
+        */
+		
+		const lbl = {
             path: pt,
             fillColor: "#300",
             fillOpacity: 1.0,
