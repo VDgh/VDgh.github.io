@@ -287,6 +287,7 @@ function addAction() {
     clone.hidden = false;
     clone.id = parseInt(Math.random() * 1000000);
     container.appendChild(clone);
+    container.setAttribute("style","height:"+(clone.clientHeight*1.5*(container.childElementCount+1))+ "px");
 
     bezierVal(2, 0);
     let bzrCont = document.getElementById("bzrCont");

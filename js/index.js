@@ -464,14 +464,12 @@ function dragWp(wpNm, stat) {
         if (wpNm > 0) {
    			pos = middle(waypoints[wpNm - 1].position, waypoints[wpNm].position);
             wpMid[wpNm - 1].setPosition(pos);
-            wpMid[wpNm - 1].setMap(map);
        }
 
         if (wpNm < waypoints.length - 1) {
   			pos = middle(waypoints[wpNm].position, waypoints[wpNm + 1].position);
             wpMid[wpNm].setPosition(pos);
-            wpMid[wpNm].setMap(map);
-        }
+         }
 
     }
 

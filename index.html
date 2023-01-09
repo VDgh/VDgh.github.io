@@ -21,13 +21,13 @@
 
 		<!--Add a script by google -->
 		<!--AIzaSyACXVz5oXNw9IQuvqxcmHNWdc_1Edt45jI-->
-	
+				
 
 		<script async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyCp4BFOpsm0SZU99ls4EAGflJyG-Jbvzh4   
 				&callback=initMap&libraries=geometry,places,elevation"/>
 
-		<!==	
+<!==
 		<script	async	src="https://maps.googleapis.com/maps/api/js?
 				key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg 
 				&callback=initMap&libraries=geometry,places,elevation"/>
@@ -47,7 +47,7 @@
 	</div>
 
 	<div class="panel" id="panelM" >
-		<div id="Mission" >
+		<div id="Mission" style=" margin-top:20px; height:30px;" >
 
 			<div class="dropdown">
 				<button onclick="saveBtn()" class="dropbtn">Save</button>
@@ -67,7 +67,8 @@
 
 
 
-			<div class="linMs" id="actTmLn" >
+			<div class="linMs" id="actTmLn" style=" height:100px;" >
+			<!--	
 				<div class="lin" style=" height:30px;" >
 					<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="timeLine()">Timeline</button>
 					<input class="txt" id="tlInput" style="height:20px; margin-right:10px;" value="2.0" type="text" onchange="tmLnVal(value)"/>
@@ -86,6 +87,7 @@
 				<div class="lin" style=" height:30px;" >
 					<input type="checkbox" name="timelineChk" value="only smooth">Optimize only smooth edges</br>      
 				</div>		
+			-->
 			</div>     
 
 
@@ -108,7 +110,7 @@
 		<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="deleteWpPoi()"><img src="./css/img/trash-24.png"/></button>
 
 		<button  class="ttl" style=" height:100%; float: left;"  onclick="minusOne()"><img src="./css/img/ArL-24.png"/></button>
-		<input  class="txt" id= "display"  value="" type="text" onchange="displayChange(value,true)"/>
+		<input  class="txt" id= "display" style=" height:70%; value="" type="text" onchange="displayChange(value,true)"/>
 		<button  class="ttl" style="margin-right:15px; height:100%; float: left;"  onclick="plusOne()"><img src="./css/img/ArR-24.png"/></button>
 
 		<div style ="float: left;margin-right:10px;padding-top:5px;">
