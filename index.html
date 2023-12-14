@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Quartz crystals</title>
+      <style>
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -applesystem, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+            Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+         }
+         html,
+         body {
+            height: 100vh;
+            width: 100vw;
+         }
+         #threejs-container {
+            position: block;
+            width: 100%;
+            height: 100%;
+         }
+         .obit-controls-gizmo {
+            position: absolute;
+            top: 2em;
+            left: 2em;
+            z-index: 1000;
+            background-color: #FFF0;
+            border-radius: 100%;
+            transition: background-color .15s linear;
+            cursor: pointer;
+         }
+
+         .obit-controls-gizmo.dragging, .obit-controls-gizmo:hover  {
+            background-color: #FFF3;
+            
+         }
+
+         .obit-controls-gizmo.inactive {
+            pointer-events: none;
+            background-color: #FFF0 !important; 
+         }
+
+      </style>
+	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js" ></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+      <script src="./js/non-module/dat.gui.js"></script>
+	   <script src="./js/non-module/OrbitControlsGizmo.js"></script>  
+	   <script src="./js/non-module/OrbitControls.js"></script>  
+      
+      <script src="./js/cry/quartz.js"></script>
+      <script src="./js/cry/cry.js"></script>
+      <script src="./js/cry/sio.js"></script>
+   
+   </head>
+   <body>
+   
+      <input type="file" id="crystalInput" accept=".sfn"/>
+      <div id="container"></div>
+            
+      <script>
+         $(document).ready(function(){
+       
+            $("#crystalInput").change(function (event) {
+               file = event.target.files[0]
+               var reader = new FileReader();
+               reader.onload = function (e) {
+                  qz = strLoadCrystal(e.target.result);
+                   genSceens(qz);
+               };
+               reader.readAsBinaryString(file);
+            });
+         });
+       
+        
+        
+      </script>
+     
+     
+     
+     
+     <script >
+         
+         let qzBlock =  new THREE.Group();
+         // controls
+         const gui = new dat.GUI({ autoPlace: true, width: 300 })
+          
+         //console.log('start')
+         // sizes
+         let width = window.innerWidth
+         let height = window.innerHeight
+         // scene
+         const scene = new THREE.Scene()
+         
+                 
+         scene.background = new THREE.Color(0x262626)
+         //console.log(scene.children)
+         // renderer
+         const renderer = new THREE.WebGL1Renderer()
+         renderer.setSize(window.innerWidth, window.innerHeight)
+         renderer.shadowMap.enabled = true;
+         renderer.shadowMap.type = THREE.PCFSoftShadowMap
+         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+         document.body.appendChild( renderer.domElement );
+         
+         // lights
+         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+         scene.add(ambientLight)
+         const light = new THREE.DirectionalLight()
+         light.position.set(30, 50, 50)
+         scene.add(light)
+         const helper = new THREE.DirectionalLightHelper(light)
+         scene.add(helper)
+         // light controls
+         const lightColor = {
+            color: light.color.getHex()
+         }
+         light.castShadow = true;
+          const frustumSize = 80;
+         light.shadow.camera = new THREE.OrthographicCamera(
+            -frustumSize / 3,
+            frustumSize / 3,
+            frustumSize / 3,
+            -frustumSize / 3,
+            1,
+            80
+         );
+         light.shadow.camera.position.copy(light.position); //(light.position);
+         light.shadow.camera.lookAt(light.position);
+
+         // camera
+         const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000)
+         camera.position.set(0, 20, 20)
+         scene.add(light.shadow.camera);
+
+         // axes Helper
+         const axesHelper = new THREE.AxesHelper( 15 );
+         scene.add( axesHelper );
+         // // Grid Helper
+         const grid = new THREE.GridHelper(10, 10, "#666666", "#222222");
+         grid.position.y=-1.74;
+         scene.add(grid);
+         
+         // plane
+         
+         
+          // plane
+         const planeGeometry = new THREE.PlaneGeometry(1000, 1000)
+         const plane = new THREE.Mesh(
+            planeGeometry,
+            new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+         )
+         plane.rotateX(-Math.PI / 2)
+         plane.position.y = -1.75
+         plane.receiveShadow = true
+         plane.name = "floor"
+         scene.add(plane)
+       
+  
+         // cube
+    
+       
+         
+        //              cubes
+        
+         const scnCutCenter = new THREE.Vector3(5,0,7);
+         const ccGgeo = new THREE.BoxGeometry(7, 7,7)
+         const ccMat = new THREE.MeshPhongMaterial({ color: 0x99ccff, transparent: true, opacity: 0.40, side: THREE.DoubleSide })
+        
+         const cutCube = new THREE.Mesh(ccGgeo, ccMat);
+         cutCube.position.copy(scnCutCenter);
+         cutCube.renderOrder =1;  // inMat ..... depthWrite :false, 
+         //cutCube.castShadow = true;
+         cutCube.receiveShadow = true;
+         cutCube.name ="cutCube";
+         scene.add(cutCube);
+		  
+         const scnIntroCenter = new THREE.Vector3(-5,0,7);
+         const inGgeo = new THREE.BoxGeometry(7, 7,7)
+         const inMat = new THREE.MeshPhongMaterial({ color: 0xffaa99, transparent: true, opacity: 0.30, side: THREE.DoubleSide })
+         const intoCube = new THREE.Mesh(inGgeo, inMat);
+         intoCube.position.copy(scnIntroCenter);
+         intoCube.renderOrder =1;  // inMat ..... depthWrite :false, 
+         //intoCube.castShadow = true;
+         intoCube.receiveShadow = true;
+         intoCube.name ="intoCube";
+         scene.add(intoCube);
+
+
+
+
+
+
+
+		   //load('./crystals/TutIni.txt')
+         load('./crystals/TutIni.sfn')
+	
+         function load(url) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'arraybuffer';
+            xhr.onload = function(e) {
+                if (this.status == 200) {
+  	               btAr = new Uint8Array(this.response);
+                  qz = loadCrystal(btAr);
+                  genSceens(qz);
+               }
+            };
+           xhr.send();
+	      }
+
+
+         function genSceens(qz){
+            sceneIntro( scene, qz);
+            sceneCutting( scene, qz);
+          }
+
+
+        // animation
+         function animate() {
+            requestAnimationFrame(animate)
+             //cube.rotation.x += 0.005
+             //cube.rotation.y += 0.01
+            orbitCntr.update()
+            render();
+            renderer.render(scene, camera)
+         }
+         
+  
+         function render() {
+            for(let i=0; i<crystals.length;i++){
+               crPack = crystals[i]
+               if(crPack.length>0 &&( crShow.faceSel || INTERSECTED[i] != null)){
+               
+                  raycaster.setFromCamera( pointer, camera );
+                  const intersects = raycaster.intersectObjects( crPack[2].children, false );
+
+                  if ( intersects.length > 0 ) {
+
+                     if ( INTERSECTED[i] != intersects[ 0 ].object ) {
+                        if ( INTERSECTED[i] ) INTERSECTED[i].material.color = INTERSECTED_COLOR[i].clone ();
+
+                        INTERSECTED[i] = intersects[ 0 ].object;
+                        INTERSECTED_COLOR[i] = INTERSECTED[i].material.color.clone ();
+                        INTERSECTED[i].material.color.set( 0xcc7722 )
+                        
+                        //-------------------------------------------------
+                        //if ( INTERSECTED ) console.log(INTERSECTED.name)
+                        //-------------------------------------------------
+
+                     }
+
+                  } else {
+                     if ( INTERSECTED[i] ) INTERSECTED[i].material.color = INTERSECTED_COLOR[i].clone ();
+                     INTERSECTED[i] = null;
+                  }            
+         
+               }
+            }
+         }
+
+
+         // ================= controls =============================
+         const orbitCntr = new OrbitControls(camera, renderer.domElement)
+         const controlsGizmo = new OrbitControlsGizmo(orbitCntr, { size: 100, padding: 8 });
+         document.body.appendChild(controlsGizmo.domElement);
+         //------------------------------------------------------------
+         let INTERSECTED = new Array(5);
+         let INTERSECTED_COLOR = new Array(5);
+         const raycaster = new THREE.Raycaster();
+         const pointer = new THREE.Vector2();
+   
+         // ================= events =============================
+            // responsiveness
+         window.addEventListener('resize', () => {
+            width = window.innerWidth
+            height = window.innerHeight
+            camera.aspect = width / height
+            camera.updateProjectionMatrix()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.render(scene, camera)
+         })
+
+         window.addEventListener( 'pointermove', onPointerMove );
+         window.addEventListener( 'pointerdown', onPointerDown );
+         //window.addEventListener( 'pointerup', onPointerUp );
+         
+         //qzBlock.addEventListener( 'pointerenter', onPointerEnter );
+         //qzBlock.addEventListener( 'pointerover', onPointerOver );
+         //qzBlock.addEventListener( 'pointerout', onPointerOut );
+         
+         // ================= event's functions ========================
+         function onPointerMove( event ) {
+           // event.preventDefault();
+           // if (! orbitCntr.enabled){
+              pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+              pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+           // }
+         }
+
+         var tapedTwice = false;
+ 
+         function onPointerDown(event){
+           // event.preventDefault(); 
+           // if (! orbitCntr.enabled){
+               pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+               pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  	       // }
+            
+	         if(!tapedTwice) {
+               tapedTwice = true;
+               setTimeout( function() { tapedTwice = false; }, 500 );
+               return false;
+            }
+               pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+               pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+             
+               crystalCut(crPak);
+             
+             
+               //alert('You tapped me Twice !!!' + "  " + pointer.x + "  " + pointer.y);
+         }
+            
+         function onPointerUp( event ) {
+           // event.preventDefault();
+            //if (! orbitCntr.enabled){
+              pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+              pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+           // }
+         }
+ 
+         function onPointerEnter( event ) {event.preventDefault();}
+         function onPointerOver( event ) {event.preventDefault();}
+         function onPointerOut( event ) {event.preventDefault();}
+        
+
+
+        // ============================ dat.GUI ==========================
+         
+         const camFolder = gui.addFolder('Camera')
+         camFolder.add(camera.position, 'y', 10, 80, 1)
+         camFolder.add(camera.position, 'z', 10, 80, 1)
+         camFolder.open()
+
+         const lightFolder = gui.addFolder('Directional Light')
+         lightFolder.addColor(lightColor, 'color').onChange(() => {
+         light.color.set(lightColor.color)})
+         lightFolder.add(light, 'intensity', 0, 1, 0.01)
+         lightFolder.open()
+         const directionalLightFolder = gui.addFolder('Position of Light')
+         directionalLightFolder.add(light.position, 'x', -10, 10, 0.1)
+         directionalLightFolder.add(light.position, 'y', -10, 10, 0.1)
+         directionalLightFolder.add(light.position, 'z', -10, 10, 0.1)
+         directionalLightFolder.open()
+         //----------------------------------------------------------------
+         orbitCntr.autoRotate = false;// true
+         orbitCntr.autoRotateSpeed = 1;
+         const ocFolder = gui.addFolder('Orbit Controls')
+         ocFolder.add(orbitCntr, 'enabled')
+         ocFolder.add(orbitCntr, 'enableZoom')
+         ocFolder.add(orbitCntr, 'enableRotate')
+         ocFolder.add(orbitCntr, 'enablePan')
+         ocFolder.add(orbitCntr, 'autoRotate')
+         ocFolder.add(orbitCntr, 'autoRotateSpeed', 1, 100, 1)
+         ocFolder.open()
+         //----------------------------------------------------------------
+      
+
+
+
+         // rendering the scene
+         const container = document.querySelector('#container')
+         container.append(renderer.domElement)
+         renderer.render(scene, camera)
+         //window.requestAnimationFrame(render);
+         animate()
+         
+         //console.log(scene.children)
+
+      </script>
+   </body>
+</html>
